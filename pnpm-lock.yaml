@@ -25,6 +25,9 @@ devDependencies:
   consola:
     specifier: ^3.2.3
     version: 3.2.3
+  defu:
+    specifier: ^6.1.4
+    version: 6.1.4
   eslint:
     specifier: ^8.57.0
     version: 8.57.0
@@ -1081,6 +1084,10 @@ packages:
       define-data-property: 1.1.4
       has-property-descriptors: 1.0.2
       object-keys: 1.1.1
+    dev: true
+
+  /defu@6.1.4:
+    resolution: {integrity: sha512-mEQCMmwJu317oSz8CwdIOdwf3xMif1ttiM8LTufzc3g6kR+9Pe236twL8j3IYT1F7GfRgGcW6MWxzZjLIkuHIg==}
     dev: true
 
   /delayed-stream@1.0.0:

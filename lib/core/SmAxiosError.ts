@@ -1,82 +1,70 @@
-import { ErrorTypeName, type ErrorConfig } from '../tyings/error.ts';
+import { ErrorName, type ErrorConfig } from '../tyings/error.ts';
+import { Typings } from '../utils/index.ts';
 
-class SmAxiosError {
-  /**
-   * 错误信息
-   */
-  message: string;
+class SmAxiosError extends Error {
   /**
    * 错误类型
    */
-  name = ErrorTypeName.SmAxios;
+  name;
   /**
    * 错误code 包含接口请求错误status
    */
-  code?: ErrorConfig['code'];
-  constructor(name: ErrorTypeName, message: string, config?: ErrorConfig) {
-    this.message = message;
+  code: ErrorConfig['code'] = 'UNKNOWN';
+  config: Record<string, any> = {};
+  constructor(name: ErrorName, message: string, config?: ErrorConfig) {
+    super(message);
     this.name = name;
-
     config && this._setConfig(config);
   }
-
-  _setConfig(config: ErrorConfig) {
-    this.code = config.code || 99;
-  }
-
   /**
-   * code对应的message
-   * @param code
+   * @desc 设置
+   * @param config
+   */
+  private _setConfig(config: ErrorConfig) {
+    this.code = config.code || 'UNKNOWN';
+    if (Typings.isObject(config)) {
+      this.config = {
+        ...config
+      };
+    }
+  }
+  /**
+   * @desc 自定义对象转
    * @returns
    */
-  static codeMessage(code: ErrorConfig['code']) {
-    let errMessage = '';
-    switch (code) {
-      case 400:
-        errMessage = '错误的请求';
-        break;
-      case 401:
-        errMessage = '未授权，请重新登录';
-        break;
-      case 403:
-        errMessage = '拒绝访问';
-        break;
-      case 404:
-        errMessage = '请求错误,未找到该资源';
-        break;
-      case 405:
-        errMessage = '请求方法未允许';
-        break;
-      case 408:
-        errMessage = '请求超时';
-        break;
-      case 500:
-        errMessage = '服务器端出错';
-        break;
-      case 501:
-        errMessage = '网络未实现';
-        break;
-      case 502:
-        errMessage = '网络错误';
-        break;
-      case 503:
-        errMessage = '服务不可用';
-        break;
-      case 504:
-        errMessage = '网络超时';
-        break;
-      case 505:
-        errMessage = 'http版本不支持该请求';
-        break;
-      case 99:
-        errMessage = '常用错误';
-        break;
-      case 'ECONNABORTED':
-        errMessage = '请求超时';
-        break;
-      default:
-        errMessage = `未知错误 --${code}`;
+  toString() {
+    let basic = `${this.name} [${this.code}]: ${this.message}`;
+    if (this.config && Object.keys(this.config).length) {
+      basic += `\n${this.config}`;
     }
-    return errMessage;
+    return basic;
   }
+}
+
+export function getSmError(message: string): SmAxiosError;
+export function getSmError(name: ErrorName, message: string): SmAxiosError;
+export function getSmError(message: string, config: ErrorConfig): SmAxiosError;
+export function getSmError(name: ErrorName, message: string, config: ErrorConfig): SmAxiosError;
+/**
+ * @desc 返回错误信息
+ * @param a
+ * @param b
+ * @param c
+ * @returns
+ */
+export function getSmError(a: ErrorName | string, b?: string | ErrorConfig, c?: ErrorConfig) {
+  let argLen = arguments.length;
+  let err: SmAxiosError | null = null;
+  if (argLen === 1) {
+    err = new SmAxiosError(ErrorName.SmAxios, a);
+  } else if (argLen === 2) {
+    if (Typings.isString(a) && Typings.isString(b)) {
+      err = new SmAxiosError(a as ErrorName, b);
+    } else {
+      err = new SmAxiosError(ErrorName.SmAxios, a, b as ErrorConfig);
+    }
+  } else {
+    err = new SmAxiosError(a as ErrorName, b as string, c);
+  }
+  return err;
 }

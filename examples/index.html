@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body></body>
+  <script>
+    class CustomError extends Error {
+      constructor(message, code) {
+        super(message);
+        this.name = this.constructor.name; // 保留错误类的名称
+        this.code = code; // 添加自定义属性，例如错误代码
+      }
+
+      toString() {
+        return `${this.name} [${this.code}]: ${this.message}`;
+      }
+    }
+
+    // 使用示例
+    try {
+      throw new CustomError('Something went wrong!', 404);
+    } catch (error) {
+      console.error(error.toString()); // 输出: CustomError [404]: Something went wrong!
+    }
+  </script>
+</html>
