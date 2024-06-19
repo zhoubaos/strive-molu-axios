@@ -1,25 +1,25 @@
-import type { AxiosRequestConfig } from 'axios';
-
+import type { AxiosRequestConfig, AxiosError } from 'axios';
+import type { SetRequiredKey } from './utils.ts';
 export type { AxiosRequestConfig };
 
 /**
- * @desc 库的请求配置
+ * @desc 请求属性配置
  */
-export type Options = {
+export type Config = {
   /**
    * 请求地址
    */
   url?: string;
+  /**
+   * 请求传参
+   */
+  data?: any;
   /**
    * 请求方法
    *
    * @default 'get'
    */
   method?: 'get' | 'post' | 'put' | 'delete';
-  /**
-   * 请求传参
-   */
-  data?: any;
   /**
    * 如果url是一个相对地址会自动添加在url前面
    *
@@ -33,9 +33,10 @@ export type Options = {
    */
   timeout?: number;
   /**
-   * 请求头Content-Type属性的值
+   * 请求头`Content-Type`属性的值
    *
    * @default 'json'
+   *
    * * json：application/json;charset=UTF-8;
    * * urlencoded：application/x-www-form-urlencoded;charset=UTF-8
    * * formdata：multipart/formdata
@@ -81,17 +82,21 @@ export type Options = {
    */
   axiosReqConfig?: AxiosRequestConfig;
 };
+/**
+ * @desc 有默认值的请求属性配置
+ */
+export type DefaultConfig = Omit<Config, 'url' | 'data'>;
+/**
+ * @desc 配置中url必传
+ */
+export type UrlRequiredConfig = SetRequiredKey<Config, 'url'>;
 
-export type RequiredOptions = Required<
-  Pick<
-    Options,
-    | 'baseURL'
-    | 'method'
-    | 'timeout'
-    | 'contentType'
-    | 'retryTimes'
-    | 'isCacheResData'
-    | 'cacheTime'
-    | 'repeatRequestStrategy'
-  >
->;
+/**
+ * @desc 接口响应数据标签
+ */
+export type ResFlag = 'BridgeSuccess' | 'BridgeError' | 'ReqError' | 'ResError';
+
+/**
+ * @desc axios响应错误
+ */
+export type AxiosFlagError = AxiosError & { flag?: ResFlag };

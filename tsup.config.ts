@@ -4,7 +4,7 @@ import { defineConfig } from 'tsup';
  * 详情请参考：https://github.com/egoist/tsup/issues/571
  */
 export default defineConfig({
-  entry: ['src/*.ts'], //入口文件
+  entry: ['lib/index.ts'], //入口文件
   splitting: true, //代码分割
   cjsInterop: true,
   shims: true,

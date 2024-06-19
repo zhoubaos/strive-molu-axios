@@ -1,7 +1,9 @@
-import { ErrorName, type ErrorConfig } from '../tyings/error.ts';
+import { ErrorName, type ErrorConfig } from '../typescript/error.ts';
 import { Typings } from '../utils/index.ts';
 
-class SmAxiosError extends Error {
+export { ErrorName } from '../typescript/error.ts';
+
+export class SmAxiosError<Config = any> extends Error {
   /**
    * 错误类型
    */
@@ -9,24 +11,12 @@ class SmAxiosError extends Error {
   /**
    * 错误code 包含接口请求错误status
    */
-  code: ErrorConfig['code'] = 'UNKNOWN';
-  config: Record<string, any> = {};
-  constructor(name: ErrorName, message: string, config?: ErrorConfig) {
+  code: ErrorConfig['code'] = 'UnKnown';
+  config: ErrorConfig<Config>;
+  constructor(name: ErrorName, message: string, config?: ErrorConfig<Config>) {
     super(message);
     this.name = name;
-    config && this._setConfig(config);
-  }
-  /**
-   * @desc 设置
-   * @param config
-   */
-  private _setConfig(config: ErrorConfig) {
-    this.code = config.code || 'UNKNOWN';
-    if (Typings.isObject(config)) {
-      this.config = {
-        ...config
-      };
-    }
+    this.config = config ?? {};
   }
   /**
    * @desc 自定义对象转
@@ -43,8 +33,12 @@ class SmAxiosError extends Error {
 
 export function getSmError(message: string): SmAxiosError;
 export function getSmError(name: ErrorName, message: string): SmAxiosError;
-export function getSmError(message: string, config: ErrorConfig): SmAxiosError;
-export function getSmError(name: ErrorName, message: string, config: ErrorConfig): SmAxiosError;
+export function getSmError<Config = any>(message: string, config: ErrorConfig<Config>): SmAxiosError<Config>;
+export function getSmError<Config = any>(
+  name: ErrorName,
+  message: string,
+  config: ErrorConfig<Config>
+): SmAxiosError<Config>;
 /**
  * @desc 返回错误信息
  * @param a
@@ -52,19 +46,23 @@ export function getSmError(name: ErrorName, message: string, config: ErrorConfig
  * @param c
  * @returns
  */
-export function getSmError(a: ErrorName | string, b?: string | ErrorConfig, c?: ErrorConfig) {
-  let argLen = arguments.length;
-  let err: SmAxiosError | null = null;
+export function getSmError<Config extends object>(
+  a: ErrorName | string,
+  b?: string | ErrorConfig<Config>,
+  c?: ErrorConfig<Config>
+) {
+  const argLen = arguments.length;
+  let err: SmAxiosError<Config> | null = null;
   if (argLen === 1) {
-    err = new SmAxiosError(ErrorName.SmAxios, a);
+    err = new SmAxiosError<Config>(ErrorName.SmAxios, a);
   } else if (argLen === 2) {
     if (Typings.isString(a) && Typings.isString(b)) {
       err = new SmAxiosError(a as ErrorName, b);
     } else {
-      err = new SmAxiosError(ErrorName.SmAxios, a, b as ErrorConfig);
+      err = new SmAxiosError<Config>(ErrorName.SmAxios, a, b as ErrorConfig);
     }
   } else {
-    err = new SmAxiosError(a as ErrorName, b as string, c);
+    err = new SmAxiosError<Config>(a as ErrorName, b as string, c);
   }
   return err;
 }

@@ -1,15 +1,25 @@
 /**
- * @desc 错误类型
- */
-export enum ErrorName {
-  AxiosReq = 'AxiosReqError', //axios请求相关错误
-  AxiosRes = 'AxiosResError', //axios响应相关错误
-  SmAxios = 'SmAxiosError' //该项目的错误
-}
-/**
  * @desc 错误状态码
  */
-export const codes = [400, 401, 403, 404, 405, 429, 500, 501, 502, 503, 504, 505, 'ECONNABORTED', 'UNKNOWN'] as const;
+export const codes = [
+  400,
+  401,
+  403,
+  404,
+  405,
+  429,
+  500,
+  501,
+  502,
+  503,
+  504,
+  505,
+  'Econnaborted',
+  'UnKnown',
+  'BridgeError',
+  'ReqError',
+  'ResError'
+] as const;
 /**
  * @desc 状态码对应的预设文本
  */
@@ -26,13 +36,9 @@ export const prsetCodeToText: Record<(typeof codes)[number] | number, string> = 
   503: '服务器过载',
   504: '网络超时',
   505: 'http版本不支持该请求',
-  UNKNOWN: '未知错误',
-  ECONNABORTED: '请求时间超过TimeOut时间'
+  UnKnown: '未知错误',
+  Econnaborted: '请求时间超过TimeOut时间',
+  BridgeError: '接口请求成功，但不满足成功条件',
+  ReqError: 'Axios请求报错',
+  ResError: 'Axios响应报错'
 };
-
-export type ErrorConfig = {
-  /**
-   * 错误code
-   */
-  code?: (typeof codes)[number];
-} & Record<string, any>;

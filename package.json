@@ -29,6 +29,7 @@
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
+    "example": "tsx examples/server.ts",
     "lint": "eslint .",
     "lint:fix": "pnpm run lint --fix",
     "zx:tag": "tsx scripts/zx/tag.ts",
