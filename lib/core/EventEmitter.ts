@@ -60,7 +60,7 @@ class EventEmitter {
    * @param event
    * @returns
    */
-  _hasEvent(event: string) {
+  private _hasEvent(event: string) {
     return Reflect.has(this.events, event);
   }
 }

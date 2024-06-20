@@ -10,18 +10,14 @@ module.exports = defineConfig({
   extends: [
     'eslint:recommended',
     'plugin:import/recommended',
-    // 'plugin:markdown/recommended',
+    'plugin:markdown/recommended-legacy',
+    'plugin:vue/vue3-recommended',
     'plugin:@typescript-eslint/recommended',
     'prettier'
   ],
-  settings: {
-    'import/resolver': {
-      node: { extensions: ['.js', '.mjs', '.ts', '.d.ts', '.tsx'] }
-    }
-  },
   overrides: [
     {
-      files: ['*.ts'],
+      files: ['*.ts', '.vue'],
       rules: {
         'no-undef': 'off'
       }
@@ -36,6 +32,21 @@ module.exports = defineConfig({
       files: ['*.js'],
       rules: {
         '@typescript-eslint/no-var-requires': 'off'
+      }
+    },
+    {
+      files: ['*.vue'],
+      parser: 'vue-eslint-parser',
+      parserOptions: {
+        parser: '@typescript-eslint/parser',
+        extraFileExtensions: ['.vue'],
+        ecmaVersion: 'latest',
+        ecmaFeatures: {
+          jsx: true
+        }
+      },
+      rules: {
+        'no-undef': 'off'
       }
     },
     {
@@ -57,7 +68,7 @@ module.exports = defineConfig({
 
     // ts
     '@typescript-eslint/no-unused-vars': 'off', // 未使用变量警告
-    'typescript-eslint/@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/no-explicit-any': 'off', //允许使用any
     '@typescript-eslint/no-this-alias': [
       'error',
@@ -75,6 +86,12 @@ module.exports = defineConfig({
       }
     ],
     '@typescript-eslint/ban-ts-comment': 'off', //允许使用@ts-ignore
-    '@typescript-eslint/no-non-null-assertion': 'off' //允许使用非空断言
+    '@typescript-eslint/no-non-null-assertion': 'off', //允许使用非空断言
+
+    // vue
+    'vue/no-v-html': 'off',
+    'vue/no-mutating-props': 'off',
+    'vue/prefer-import-from-vue': 'off',
+    'vue/multi-word-component-names': 'off' // 禁用vue文件强制多个单词命名
   }
 });

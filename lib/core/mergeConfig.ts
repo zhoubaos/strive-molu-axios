@@ -1,5 +1,6 @@
 import type { Config, DefaultConfig, AxiosRequestConfig } from '../typescript/options.ts';
 import { Typings } from '../utils/index.ts';
+import RequestPool from './RequestPool.ts';
 import defConfig from '../defaults/config.ts';
 import { defu } from 'defu';
 
@@ -23,10 +24,11 @@ class MergeConfig {
   timeout;
   contentType;
   retryTimes;
-  isCacheResData;
-  cacheTime;
   repeatRequestStrategy;
   headers: AxiosRequestConfig['headers'];
+  customBridgeSuccess;
+  customBridgeSuccessData;
+  customBridgeErrorMsg;
   /**
    * 可以直接被axios识别的请求属性。
    * 详见：https://axios-http.com/zh/docs/req_config
@@ -38,15 +40,16 @@ class MergeConfig {
     this.timeout = config.timeout ?? defConfig.timeout;
     this.contentType = config.contentType ?? defConfig.contentType;
     this.retryTimes = config.retryTimes ?? defConfig.retryTimes;
-    this.isCacheResData = config.isCacheResData ?? defConfig.isCacheResData;
-    this.cacheTime = config.cacheTime ?? defConfig.cacheTime;
     this.repeatRequestStrategy = config.repeatRequestStrategy ?? defConfig.repeatRequestStrategy;
     this.headers = config.headers ?? defConfig.headers;
     this.axiosReqConfig = config.axiosReqConfig ?? defConfig.axiosReqConfig;
+    this.customBridgeSuccess = config.customBridgeSuccess ?? defConfig.customBridgeSuccess;
+    this.customBridgeSuccessData = config.customBridgeSuccessData ?? defConfig.customBridgeSuccessData;
+    this.customBridgeErrorMsg = config.customBridgeErrorMsg ?? defConfig.customBridgeErrorMsg;
   }
 
   /**
-   * @desc 获取可以直接用于axios的配置
+   * @desc 获取可以直接用于axios请求参数的对象
    */
   get AxiosConfig(): AxiosRequestConfig {
     const aConfig = {
@@ -71,6 +74,32 @@ class MergeConfig {
     };
 
     return aConfig;
+  }
+
+  /**
+   * @desc 接口对于重复请求的策略
+   *
+   * * 0 不做任何限制
+   * * 1 拒绝重复请求，并报错
+   * * 2 允许重复请求，但不会请求接口，会返回第一次请求的数据
+   */
+  get RepeatReqStrategy() {
+    let s = 0;
+    if (this.repeatRequestStrategy === false) {
+      s = 0;
+    } else if (this.repeatRequestStrategy === true || this.repeatRequestStrategy === 1) {
+      s = 1;
+    } else {
+      s = 2;
+    }
+    return s;
+  }
+
+  /**
+   * @desc 根据axiosConfig获取唯一的key
+   */
+  get Axioskey() {
+    return RequestPool.getConfigKey(this.AxiosConfig);
   }
 
   /**

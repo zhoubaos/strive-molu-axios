@@ -1,5 +1,6 @@
 {
   "name": "strive-molu-axios",
+  "packageManager": "pnpm@8.15.5",
   "version": "0.0.1",
   "description": "基于 axios 封装，具有接口防抖，失败重新请求等功能。",
   "main": "dist/index.js",
@@ -8,11 +9,11 @@
   "exports": {
     ".": {
       "types": {
-        "require": "./dist/index.d.ts",
-        "import": "./dist/index.d.mts"
+        "require": "./dist/index.d.cts",
+        "import": "./dist/index.d.ts"
       },
-      "require": "./dist/index.js",
-      "import": "./dist/index.mjs"
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.js"
     },
     "./*": "./*"
   },
@@ -38,6 +39,9 @@
   "peerDependencies": {
     "axios": "^1.7.2"
   },
+  "dependencies": {
+    "ts-md5": "^1.3.1"
+  },
   "devDependencies": {
     "@types/node": "^20.14.2",
     "@typescript-eslint/eslint-plugin": "^7.13.0",
@@ -51,8 +55,8 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-markdown": "^5.0.0",
     "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-vue": "^9.26.0",
     "prettier": "^3.2.5",
-    "ts-md5": "^1.3.1",
     "tsup": "^8.0.2",
     "tsx": "^4.11.2",
     "typescript": "^5.4.5",

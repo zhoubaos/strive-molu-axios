@@ -1,5 +1,6 @@
 import type { AxiosRequestConfig, AxiosError } from 'axios';
 import type { SetRequiredKey } from './utils.ts';
+import StriveMoluAxios from '../core/SmAxios.ts';
 export type { AxiosRequestConfig };
 
 /**
@@ -19,7 +20,7 @@ export type Config = {
    *
    * @default 'get'
    */
-  method?: 'get' | 'post' | 'put' | 'delete';
+  method?: AxiosRequestConfig['method'];
   /**
    * 如果url是一个相对地址会自动添加在url前面
    *
@@ -55,18 +56,6 @@ export type Config = {
    */
   retryTimes?: number;
   /**
-   * 是否缓存接口返回的数据
-   *
-   * @default false
-   */
-  isCacheResData?: boolean;
-  /**
-   * 接口返回数据缓存时间，单位ms
-   *
-   * @default 3600*24*1（1天）
-   */
-  cacheTime?: number;
-  /**
    * 对于重复请求的处理策略
    *
    * * false 允许重复的请求
@@ -75,6 +64,25 @@ export type Config = {
    * @default true
    */
   repeatRequestStrategy?: boolean | 1 | 2;
+  /**
+   * 用于判断接口是否成功的函数
+   *
+   * @param `res` axios请求成功返回数据
+   */
+  customBridgeSuccess?: (res: any) => boolean;
+  /**
+   * 用于处理`customBridgeSuccess`方法结果为true的情况下的返回结果
+   *
+   * @param `res` axios请求成功返回数据
+   */
+  customBridgeSuccessData?: (res: any) => unknown;
+
+  /**
+   * 用于获取`customBridgeSuccess`方法结果为false的情况下的打印的错误信息
+   * @param error
+   * @returns
+   */
+  customBridgeErrorMsg?: (error: any) => string;
   /**
    * 自定义axios请求配置
    *
@@ -87,9 +95,14 @@ export type Config = {
  */
 export type DefaultConfig = Omit<Config, 'url' | 'data'>;
 /**
- * @desc 配置中url必传
+ * @desc url必传的配置
  */
 export type UrlRequiredConfig = SetRequiredKey<Config, 'url'>;
+
+/**
+ * @desc 排除url和method属性的配置
+ */
+export type OmitUrlMthodConfig = Omit<Config, 'url' | 'method'>;
 
 /**
  * @desc 接口响应数据标签
@@ -100,3 +113,18 @@ export type ResFlag = 'BridgeSuccess' | 'BridgeError' | 'ReqError' | 'ResError';
  * @desc axios响应错误
  */
 export type AxiosFlagError = AxiosError & { flag?: ResFlag };
+
+/**
+ * @desc 创建smAxios实例函数
+ */
+export type CreateInstance = (config?: DefaultConfig) => SmAxios;
+
+/**
+ * @desc smAxios实例
+ */
+export type SmAxios = {
+  create: CreateInstance;
+  request: StriveMoluAxios['request'];
+  get: StriveMoluAxios['get'];
+  post: StriveMoluAxios['post'];
+} & ((config?: UrlRequiredConfig) => any);

@@ -5,6 +5,7 @@ const isString = (val: any): val is string => typeof val === 'string';
 
 const { isArray } = Array;
 const isObject = (thing: any) => thing !== null && typeof thing === 'object';
+const isFunction = (val: any) => typeof val === 'function';
 
 export const Typings = {
   isUndefined,
@@ -12,5 +13,6 @@ export const Typings = {
   isNumber,
   isBoolean,
   isArray,
-  isObject
+  isObject,
+  isFunction
 };

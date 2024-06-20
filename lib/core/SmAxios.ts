@@ -1,12 +1,19 @@
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig, type AxiosResponse } from 'axios';
-import type { Config, DefaultConfig, UrlRequiredConfig, ResFlag, AxiosFlagError } from '../typescript/options.ts';
+import type {
+  Config,
+  DefaultConfig,
+  UrlRequiredConfig,
+  OmitUrlMthodConfig,
+  ResFlag,
+  AxiosFlagError
+} from '../typescript/options.ts';
 import { prsetCodeToText } from '../defaults/error.ts';
 import { getSmError, ErrorName } from './SmAxiosError.ts';
 import MergeConfig from './MergeConfig.ts';
 import RequestPool from './RequestPool.ts';
+import EventEmitter from './EventEmitter.ts';
 
 class StriveMoluAxios {
-  private _sourceConfig;
   /**
    * 合并的配置对象
    */
@@ -14,15 +21,19 @@ class StriveMoluAxios {
   /**
    * 用于记录真在请求的接口
    */
-  private _ReqPool;
+  private _reqPool;
+  /**
+   * 处理重复请求的发布订阅器
+   */
+  private _evEmitter;
   /**
    * axios实例对象
    */
   private _axiosInstance: AxiosInstance;
   constructor(config: DefaultConfig = {}) {
-    this._sourceConfig = config;
     this._mConfig = new MergeConfig(config);
-    this._ReqPool = new RequestPool();
+    this._reqPool = new RequestPool();
+    this._evEmitter = new EventEmitter();
     this._axiosInstance = axios.create(this._mConfig.AxiosConfig);
     this._bindAxiosInterceptors();
   }
@@ -31,11 +42,30 @@ class StriveMoluAxios {
    * @desc 请求方法
    * @param config
    */
-  request(config: UrlRequiredConfig) {
+  async request(config: UrlRequiredConfig) {
     // 合并传入的配置
     this._mConfig.merges(config);
-
-    return this._request();
+    if (this._mConfig.RepeatReqStrategy === 0) return this._request();
+    else {
+      if (this._reqPool.isExistKey(this._mConfig.Axioskey)) {
+        if (this._mConfig.RepeatReqStrategy === 1) {
+          return Promise.reject(getSmError('接口重复请求'));
+        } else {
+          return new Promise((resolve, reject) => {
+            this._evEmitter.on(this._mConfig.Axioskey, resolve, reject);
+          })
+            .then((res) => {
+              return res;
+            })
+            .catch((e) => {
+              throw e;
+            });
+        }
+      } else {
+        this._reqPool.add(this._mConfig.AxiosConfig);
+        return this._request();
+      }
+    }
   }
 
   private _request(): any {
@@ -43,9 +73,13 @@ class StriveMoluAxios {
     return (this._axiosInstance as AxiosInstance)
       .request(this._mConfig.AxiosConfig)
       .then((res: AxiosResponse & { flag?: ResFlag }) => {
-        if (this.customBridgeSuccess(res)) {
+        if (this._mConfig.customBridgeSuccess(res)) {
           res.flag = 'BridgeSuccess';
-          return this.customResSuccessData(res);
+          const resultData = this._mConfig.customBridgeSuccessData(res);
+          if (this._mConfig.RepeatReqStrategy === 2) {
+            this._evEmitter.emit(this._mConfig.Axioskey, 'resolve', resultData);
+          }
+          return resultData;
         } else {
           res.flag = 'BridgeError';
           throw res;
@@ -55,11 +89,15 @@ class StriveMoluAxios {
         if (this._mConfig.retryTimes >= 0) {
           return this._request();
         } else {
-          throw this._handleAxiosResError(error);
+          const e = this._handleAxiosResError(error);
+          if (this._mConfig.RepeatReqStrategy === 2) {
+            this._evEmitter.emit(this._mConfig.Axioskey, 'resolve', e);
+          }
+          throw e;
         }
       })
       .finally(() => {
-        this._ReqPool.remove(this._sourceConfig);
+        this._mConfig.RepeatReqStrategy !== 0 && this._reqPool.remove(this._mConfig.AxiosConfig);
       });
   }
 
@@ -71,7 +109,11 @@ class StriveMoluAxios {
     this.getSourceError(error);
     if (error.flag === 'BridgeError') {
       error.code = 'BridgeError';
-      return getSmError(ErrorName.SmAxios, this.customBridgeErrorMsg(error) ?? prsetCodeToText['BridgeError'], error);
+      return getSmError(
+        ErrorName.SmAxios,
+        this._mConfig.customBridgeErrorMsg(error) ?? prsetCodeToText['BridgeError'],
+        error
+      );
     }
     // axios 请求报错
     else if (error.flag === 'ReqError') {
@@ -88,35 +130,37 @@ class StriveMoluAxios {
   }
 
   /**
-   * @desc 判断接口是否请求成功
-   * @param res
-   */
-  customBridgeSuccess(res: any): boolean {
-    return res?.data?.info == 'Success' && res?.data?.sttatus == 1;
-  }
-
-  /**
-   * @desc 自定义接口成功返回的数据
-   * @param res
-   */
-  customResSuccessData(res: any): unknown {
-    return res?.data?.data;
-  }
-
-  /**
-   * @desc 自定义接口失败返回错误
-   * @param error
-   * @returns
-   */
-  customBridgeErrorMsg(error: any): string {
-    return error?.data?.info ?? prsetCodeToText['UnKnown'];
-  }
-  /**
    * @desc 获取原始报错信息
    * @param error
    */
   getSourceError(error: unknown) {
     //
+  }
+  /**
+   * @desc 提供get请求别名方法
+   */
+  get(url: string, config: OmitUrlMthodConfig) {
+    return this.request({
+      ...config,
+      url,
+      method: 'get'
+    });
+  }
+  /**
+   * @desc 提供post请求别名方法
+   * @param isForm
+   *
+   * * true：`contentType`值为`formdata`
+   * * false：`contentType`值为默认值
+   */
+  post(url: string, config: OmitUrlMthodConfig, isForm = true) {
+    const mConfig = {
+      ...config,
+      url,
+      method: 'post'
+    };
+    isForm && (mConfig.contentType = 'formdata');
+    return this.request(mConfig);
   }
 
   /**
