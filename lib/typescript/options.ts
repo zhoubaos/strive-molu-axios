@@ -127,6 +127,7 @@ export type SmAxios = {
   request: StriveMoluAxios['request'];
   get: StriveMoluAxios['get'];
   post: StriveMoluAxios['post'];
+  getSourceError: StriveMoluAxios['getSourceError'];
   setCongfig: StriveMoluAxios['setCongfig'];
   setHeaders: StriveMoluAxios['setHeaders'];
   setTimeouts: StriveMoluAxios['setTimeouts'];

@@ -1,9 +1,7 @@
 {
   "compilerOptions": {
     "module": "Node16",
-    "lib": [
-      "es2022"
-    ],
+    "lib": ["es2022"],
     "strict": true,
     "esModuleInterop": true,
     "moduleResolution": "Node16",
@@ -12,12 +10,7 @@
     "skipLibCheck": true,
     "noUnusedLocals": true,
     "resolveJsonModule": true,
-    "types": [
-      "node"
-    ]
+    "types": ["node"]
   },
-  "include": [
-    "lib",
-    "bin"
-  ],
+  "include": ["lib", "bin"]
 }

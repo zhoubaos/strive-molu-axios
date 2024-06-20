@@ -49,6 +49,7 @@ class StriveMoluAxios {
     else {
       if (this._reqPool.isExistKey(this._mConfig.Axioskey)) {
         if (this._mConfig.RepeatReqStrategy === 1) {
+          this.getSourceError(getSmError('接口重复请求'));
           return Promise.reject(getSmError('接口重复请求'));
         } else {
           return new Promise((resolve, reject) => {
@@ -91,6 +92,7 @@ class StriveMoluAxios {
         if (this._mConfig.retryTimes >= 0) {
           return this._request();
         } else {
+          this.getSourceError(error);
           const e = this._handleAxiosResError(error);
           if (this._mConfig.RepeatReqStrategy === 2) {
             this._evEmitter.emit(this._mConfig.Axioskey, 'resolve', e);
@@ -108,7 +110,6 @@ class StriveMoluAxios {
    * @param error
    */
   private _handleAxiosResError(error: AxiosFlagError) {
-    this.getSourceError(error);
     if (error.flag === 'BridgeError') {
       error.code = 'BridgeError';
       return getSmError(
@@ -136,6 +137,7 @@ class StriveMoluAxios {
    * @param error
    */
   getSourceError(error: unknown) {
+    console.log(111);
     //
   }
   /**

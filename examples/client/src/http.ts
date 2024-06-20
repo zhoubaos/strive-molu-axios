@@ -1,8 +1,8 @@
 import smAxios from 'strive-molu-axios';
 
-const request = smAxios.create({
+export const request = smAxios.create({
   baseURL: '/api',
-  timeout: 10000,
+  timeout: 1000,
   headers: {
     Authorization: 'xxxx token'
   },
@@ -17,4 +17,8 @@ const request = smAxios.create({
   }
 });
 
-export default request;
+smAxios.getSourceError = (e) => {
+  console.log('==source error===', e);
+};
+
+export default smAxios;

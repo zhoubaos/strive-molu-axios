@@ -4,7 +4,7 @@ import { prsetCodeToText } from './error.ts';
 const defConfig: Required<DefaultConfig> = {
   baseURL: '/api',
   method: 'get',
-  timeout: 1000,
+  timeout: 10000,
   contentType: 'json',
   retryTimes: 0,
   repeatRequestStrategy: true,
@@ -17,7 +17,7 @@ const defConfig: Required<DefaultConfig> = {
     return res?.data?.data;
   },
   customBridgeErrorMsg(error: any): string {
-    return error?.data?.info ?? prsetCodeToText['UnKnown'];
+    return error?.data?.info;
   }
 };
 

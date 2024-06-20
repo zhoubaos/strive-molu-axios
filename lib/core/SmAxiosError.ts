@@ -11,7 +11,7 @@ export class SmAxiosError<Config = any> extends Error {
   msg;
   config: ErrorConfig<Config>;
   constructor(name: ErrorName, message: string, config?: ErrorConfig<Config>) {
-    super(`${name} [${config?.code ?? 'UnKnown'}]: ${message}`);
+    super(`[${config?.code ?? 'UnKnown'}]${message}`);
     this.name = name;
     this.msg = message;
     this.config = config ?? {};

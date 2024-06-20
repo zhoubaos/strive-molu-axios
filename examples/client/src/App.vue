@@ -8,14 +8,15 @@
         <el-input-number v-model="form.age"></el-input-number>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onClick_submit">提交</el-button>
+        <el-button type="primary" @click="onClick_submit">get提交</el-button>
+        <el-button type="primary" @click="onClick_submit1">get提交V2</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script setup lang="ts">
-import request from './http';
+import { getServer, getServerV2 } from './api/get';
 import { reactive } from 'vue';
 import { ElMessage } from 'element-plus';
 
@@ -33,13 +34,24 @@ const onClick_submit = () => {
   getApi();
   getApi();
 };
+const onClick_submit1 = () => {
+  getApiV2();
+  getApiV2();
+};
 
 const getApi = async () => {
   try {
-    let res = await request({
-      url: '/getapi',
-      repeatRequestStrategy: false
-    });
+    let res = await getServer();
+    console.log(res);
+  } catch (error: any) {
+    ElMessage.error(error.msg);
+    console.error(error.toString());
+  }
+};
+
+const getApiV2 = async () => {
+  try {
+    let res = await getServerV2();
     console.log(res);
   } catch (error: any) {
     ElMessage.error(error.msg);
