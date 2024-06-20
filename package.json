@@ -3,9 +3,16 @@
   "packageManager": "pnpm@8.15.5",
   "version": "0.0.1",
   "description": "基于 axios 封装，具有接口防抖，失败重新请求等功能。",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
+  "keywords": [
+    "axios",
+    "strive-molu"
+  ],
+  "author": "",
+  "license": "ISC",
   "exports": {
     ".": {
       "types": {
@@ -21,20 +28,18 @@
     "type": "git",
     "url": "git+https://github.com/zhoubaos/strive-molu-axios.git"
   },
-  "type": "module",
-  "keywords": [
-    "axios"
+  "files": [
+    "dist"
   ],
-  "author": "",
-  "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
-    "example": "tsx examples/server.ts",
     "lint": "eslint .",
     "lint:fix": "pnpm run lint --fix",
-    "zx:tag": "tsx scripts/zx/tag.ts",
-    "tsx:demo": "tsx lib/core/SmAxios.ts"
+    "zx:tag": "tsx scripts/zx/tag.ts"
   },
   "peerDependencies": {
     "axios": "^1.7.2"
