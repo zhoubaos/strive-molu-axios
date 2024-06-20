@@ -14,5 +14,16 @@ export default defineConfig({
     Components({
       resolvers: [ElementPlusResolver()]
     })
-  ]
+  ],
+  server: {
+    host: true, //启用本地局域网ip
+    open: false, //启动本地服务器打开浏览器
+    proxy: {
+      '/api': {
+        target: 'http://192.168.2.58:3000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
+  }
 });

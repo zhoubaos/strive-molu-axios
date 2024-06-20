@@ -11,7 +11,7 @@ import { bind } from './bind.ts';
  */
 export function extend(source: Record<any, any>, target: Record<any, any>, context: object | null, allOwnKeys = false) {
   forEach(
-    [target],
+    target,
     (val, key) => {
       if (context && Typings.isFunction(val)) {
         source[key] = bind(val, context);

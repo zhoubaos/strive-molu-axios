@@ -70,6 +70,8 @@ class StriveMoluAxios {
 
   private _request(): any {
     this._mConfig.retryTimes--;
+    console.log('=====axiosConfig======', this._mConfig.AxiosConfig);
+
     return (this._axiosInstance as AxiosInstance)
       .request(this._mConfig.AxiosConfig)
       .then((res: AxiosResponse & { flag?: ResFlag }) => {
@@ -154,7 +156,7 @@ class StriveMoluAxios {
    * * false：`contentType`值为默认值
    */
   post(url: string, config: OmitUrlMthodConfig, isForm = true) {
-    const mConfig = {
+    const mConfig: any = {
       ...config,
       url,
       method: 'post'

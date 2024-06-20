@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig, AxiosError } from 'axios';
+import type { AxiosRequestConfig, AxiosError, Method } from 'axios';
 import type { SetRequiredKey } from './utils.ts';
 import StriveMoluAxios from '../core/SmAxios.ts';
 export type { AxiosRequestConfig };
@@ -20,7 +20,7 @@ export type Config = {
    *
    * @default 'get'
    */
-  method?: AxiosRequestConfig['method'];
+  method?: Method;
   /**
    * 如果url是一个相对地址会自动添加在url前面
    *
@@ -123,8 +123,11 @@ export type CreateInstance = (config?: DefaultConfig) => SmAxios;
  * @desc smAxios实例
  */
 export type SmAxios = {
-  create: CreateInstance;
+  create: (config?: DefaultConfig) => SmAxios;
   request: StriveMoluAxios['request'];
   get: StriveMoluAxios['get'];
   post: StriveMoluAxios['post'];
+  setCongfig: StriveMoluAxios['setCongfig'];
+  setHeaders: StriveMoluAxios['setHeaders'];
+  setTimeouts: StriveMoluAxios['setTimeouts'];
 } & ((config?: UrlRequiredConfig) => any);

@@ -15,7 +15,9 @@
 </template>
 
 <script setup lang="ts">
+import request from './http';
 import { reactive } from 'vue';
+import { ElMessage } from 'element-plus';
 
 const form = reactive({
   name: '',
@@ -27,7 +29,23 @@ const rules = reactive({
   age: { required: true, message: '请输入年龄' }
 });
 
-const onClick_submit = () => {};
+const onClick_submit = () => {
+  getApi();
+  getApi();
+};
+
+const getApi = async () => {
+  try {
+    let res = await request({
+      url: '/getapi',
+      repeatRequestStrategy: false
+    });
+    console.log(res);
+  } catch (error: any) {
+    ElMessage.error(error.msg);
+    console.error(error.toString());
+  }
+};
 </script>
 
 <style scoped></style>

@@ -8,26 +8,13 @@ export class SmAxiosError<Config = any> extends Error {
    * 错误类型
    */
   name;
-  /**
-   * 错误code 包含接口请求错误status
-   */
-  code: ErrorConfig['code'] = 'UnKnown';
+  msg;
   config: ErrorConfig<Config>;
   constructor(name: ErrorName, message: string, config?: ErrorConfig<Config>) {
-    super(message);
+    super(`${name} [${config?.code ?? 'UnKnown'}]: ${message}`);
     this.name = name;
+    this.msg = message;
     this.config = config ?? {};
-  }
-  /**
-   * @desc 自定义对象转
-   * @returns
-   */
-  toString() {
-    let basic = `${this.name} [${this.code}]: ${this.message}`;
-    if (this.config && Object.keys(this.config).length) {
-      basic += `\n${this.config}`;
-    }
-    return basic;
   }
 }
 

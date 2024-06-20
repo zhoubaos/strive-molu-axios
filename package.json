@@ -39,7 +39,10 @@
     "build": "tsup",
     "lint": "eslint .",
     "lint:fix": "pnpm run lint --fix",
-    "zx:tag": "tsx bin/zx/tag.ts"
+    "zx:tag": "tsx bin/zx/tag.ts",
+    "client:dev": "pnpm -C examples/client run dev",
+    "client:build": "pnpm -C examples/client run build",
+    "server": "tsx examples/server/index.ts"
   },
   "peerDependencies": {
     "axios": "^1.7.2"
