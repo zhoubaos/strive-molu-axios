@@ -92,6 +92,10 @@ module.exports = defineConfig({
     'vue/no-v-html': 'off',
     'vue/no-mutating-props': 'off',
     'vue/prefer-import-from-vue': 'off',
-    'vue/multi-word-component-names': 'off' // 禁用vue文件强制多个单词命名
+    'vue/multi-word-component-names': 'off', // 禁用vue文件强制多个单词命名
+
+    // import
+    'import/named': 'off',
+    'import/no-unresolved': 'off'
   }
 });
