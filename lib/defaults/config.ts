@@ -10,7 +10,7 @@ const defConfig: Required<DefaultConfig> = {
   headers: {},
   axiosReqConfig: {},
   customBridgeSuccess(res: any): boolean {
-    return res?.data?.info == 'Success' && res?.data?.sttatus == 1;
+    return res?.data?.info == 'Success' && res?.data?.status == 1;
   },
   customBridgeSuccessData(res: any): unknown {
     return res?.data?.data;
