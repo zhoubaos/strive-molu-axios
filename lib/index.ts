@@ -21,4 +21,5 @@ const createInstance: CreateInstance = function (config) {
 
 const smAxios = createInstance();
 
+export * from './typescript/options.ts';
 export default smAxios;
