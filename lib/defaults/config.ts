@@ -1,5 +1,4 @@
 import type { DefaultConfig } from '../typescript/options.ts';
-import { prsetCodeToText } from './error.ts';
 
 const defConfig: Required<DefaultConfig> = {
   baseURL: '/api',
@@ -18,6 +17,9 @@ const defConfig: Required<DefaultConfig> = {
   },
   customBridgeErrorMsg(error: any): string {
     return error?.data?.info;
+  },
+  getSourceError(error: any) {
+    //
   }
 };
 

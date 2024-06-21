@@ -80,9 +80,13 @@ export type Config = {
   /**
    * 用于获取`customBridgeSuccess`方法结果为false的情况下的打印的错误信息
    * @param error
-   * @returns
    */
   customBridgeErrorMsg?: (error: any) => string;
+  /**
+   * 用于打印原始的错误信息
+   * @param error
+   */
+  getSourceError?: (error: any) => void;
   /**
    * 自定义axios请求配置
    *
@@ -124,10 +128,10 @@ export type CreateInstance = (config?: DefaultConfig) => SmAxios;
  */
 export type SmAxios = {
   create: (config?: DefaultConfig) => SmAxios;
+  cancelAllRequesting: StriveMoluAxios['cancelAllRequesting'];
   request: StriveMoluAxios['request'];
   get: StriveMoluAxios['get'];
   post: StriveMoluAxios['post'];
-  getSourceError: StriveMoluAxios['getSourceError'];
   setCongfig: StriveMoluAxios['setCongfig'];
   setHeaders: StriveMoluAxios['setHeaders'];
   setTimeouts: StriveMoluAxios['setTimeouts'];

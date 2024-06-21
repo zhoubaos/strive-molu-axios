@@ -10,6 +10,7 @@
       <el-form-item>
         <el-button type="primary" @click="onClick_submit">get提交</el-button>
         <el-button type="primary" @click="onClick_submit1">get提交V2</el-button>
+        <el-button @click="onClick_cancel">取消请求</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -19,6 +20,7 @@
 import { getServer, getServerV2 } from './api/get';
 import { reactive } from 'vue';
 import { ElMessage } from 'element-plus';
+import { request } from './http';
 
 const form = reactive({
   name: '',
@@ -37,6 +39,10 @@ const onClick_submit = () => {
 const onClick_submit1 = () => {
   getApiV2();
   getApiV2();
+};
+
+const onClick_cancel = () => {
+  request.cancelAllRequesting('没有原因');
 };
 
 const getApi = async () => {

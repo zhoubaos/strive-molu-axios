@@ -2,23 +2,21 @@ import smAxios from 'strive-molu-axios';
 
 export const request = smAxios.create({
   baseURL: '/api',
-  timeout: 1000,
   headers: {
     Authorization: 'xxxx token'
   },
-  customBridgeErrorMsg(error) {
+  customBridgeErrorMsg(error: any) {
     return '桥接报错';
   },
-  customBridgeSuccessData(res) {
+  customBridgeSuccessData(res: any) {
     return res.data;
   },
-  customBridgeSuccess(res) {
+  customBridgeSuccess(res: any) {
     return true;
+  },
+  getSourceError(error: any) {
+    console.log('===source error====', error);
   }
 });
-
-smAxios.getSourceError = (e) => {
-  console.log('==source error===', e);
-};
 
 export default smAxios;

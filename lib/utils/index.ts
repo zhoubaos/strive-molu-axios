@@ -3,3 +3,4 @@ export * from './typings.ts';
 export * from './bind.ts';
 export * from './extend.ts';
 export * from './forEach.ts';
+export * from './deepClone.ts';

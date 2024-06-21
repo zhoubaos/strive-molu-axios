@@ -9,6 +9,7 @@ import type {
 } from '../typescript/options.ts';
 import { prsetCodeToText } from '../defaults/error.ts';
 import { getSmError, ErrorName } from './SmAxiosError.ts';
+import { deepClone } from '../utils/index.ts';
 import MergeConfig from './MergeConfig.ts';
 import RequestPool from './RequestPool.ts';
 import EventEmitter from './EventEmitter.ts';
@@ -27,6 +28,10 @@ class StriveMoluAxios {
    */
   private _evEmitter;
   /**
+   * 用于取消正在请求的接口
+   */
+  private _controller;
+  /**
    * axios实例对象
    */
   private _axiosInstance: AxiosInstance;
@@ -34,6 +39,8 @@ class StriveMoluAxios {
     this._mConfig = new MergeConfig(config);
     this._reqPool = new RequestPool();
     this._evEmitter = new EventEmitter();
+    this._controller = new AbortController();
+
     this._axiosInstance = axios.create(this._mConfig.AxiosConfig);
     this._bindAxiosInterceptors();
   }
@@ -45,11 +52,15 @@ class StriveMoluAxios {
   async request(config: UrlRequiredConfig) {
     // 合并传入的配置
     this._mConfig.merges(config);
+    //给每个接口添加取消接口请求的标志
+    this._mConfig.merge('axiosReqConfig', {
+      signal: this._controller.signal
+    });
+
     if (this._mConfig.RepeatReqStrategy === 0) return this._request();
     else {
       if (this._reqPool.isExistKey(this._mConfig.Axioskey)) {
         if (this._mConfig.RepeatReqStrategy === 1) {
-          this.getSourceError(getSmError('接口重复请求'));
           return Promise.reject(getSmError('接口重复请求'));
         } else {
           return new Promise((resolve, reject) => {
@@ -71,8 +82,6 @@ class StriveMoluAxios {
 
   private _request(): any {
     this._mConfig.retryTimes--;
-    console.log('=====axiosConfig======', this._mConfig.AxiosConfig);
-
     return (this._axiosInstance as AxiosInstance)
       .request(this._mConfig.AxiosConfig)
       .then((res: AxiosResponse & { flag?: ResFlag }) => {
@@ -92,7 +101,6 @@ class StriveMoluAxios {
         if (this._mConfig.retryTimes >= 0) {
           return this._request();
         } else {
-          this.getSourceError(error);
           const e = this._handleAxiosResError(error);
           if (this._mConfig.RepeatReqStrategy === 2) {
             this._evEmitter.emit(this._mConfig.Axioskey, 'resolve', e);
@@ -110,6 +118,7 @@ class StriveMoluAxios {
    * @param error
    */
   private _handleAxiosResError(error: AxiosFlagError) {
+    this._mConfig.getSourceError(deepClone(error));
     if (error.flag === 'BridgeError') {
       error.code = 'BridgeError';
       return getSmError(
@@ -122,24 +131,26 @@ class StriveMoluAxios {
     else if (error.flag === 'ReqError') {
       error.code = error.code ?? 'ReqError';
       // @ts-ignore
-      return getSmError(ErrorName.AxiosReq, prsetCodeToText[error.code] ?? prsetCodeToText['UnKnown'], error);
+      return getSmError(ErrorName.AxiosReq, prsetCodeToText[error.code ?? 'UnKnown'], error);
     }
     // axios 响应报错
     else {
-      error.code = 'ResError';
+      error.code = (error.code as string) ?? 'ResError';
+      const cancelReason = this._controller.signal.reason;
+      const msg = cancelReason ?? prsetCodeToText[(error?.response?.status as number) ?? error.code ?? 'UnKnown'];
       // @ts-ignore
-      return getSmError(ErrorName.AxiosRes, prsetCodeToText[error.status] ?? prsetCodeToText['ResError'], error);
+      return getSmError(ErrorName.AxiosRes, msg, error);
     }
   }
 
   /**
-   * @desc 获取原始报错信息
-   * @param error
+   * @desc 取消所有正在请求的接口
+   * @param reason 取消原因
    */
-  getSourceError(error: unknown) {
-    console.log(111);
-    //
+  cancelAllRequesting(reason?: string) {
+    this._controller.abort(reason ?? '手动取消所有请求');
   }
+
   /**
    * @desc 提供get请求别名方法
    */
