@@ -40,7 +40,6 @@ class StriveMoluAxios {
     this._reqPool = new RequestPool();
     this._evEmitter = new EventEmitter();
     this._controller = new AbortController();
-
     this._axiosInstance = axios.create(this._mConfig.AxiosConfig);
     this._bindAxiosInterceptors();
   }
@@ -49,7 +48,7 @@ class StriveMoluAxios {
    * @desc 请求方法
    * @param config
    */
-  async request(config: UrlRequiredConfig) {
+  async request<T = any>(config: UrlRequiredConfig): Promise<T> {
     // 合并传入的配置
     this._mConfig.merges(config);
     //给每个接口添加取消接口请求的标志
@@ -60,18 +59,14 @@ class StriveMoluAxios {
     if (this._mConfig.RepeatReqStrategy === 0) return this._request();
     else {
       if (this._reqPool.isExistKey(this._mConfig.Axioskey)) {
+        // 重复的接口直接返回
         if (this._mConfig.RepeatReqStrategy === 1) {
           return Promise.reject(getSmError('接口重复请求'));
         } else {
+          // 重复的接口通过发布-订阅模式返回数据
           return new Promise((resolve, reject) => {
             this._evEmitter.on(this._mConfig.Axioskey, resolve, reject);
-          })
-            .then((res) => {
-              return res;
-            })
-            .catch((e) => {
-              throw e;
-            });
+          });
         }
       } else {
         this._reqPool.add(this._mConfig.AxiosConfig);
