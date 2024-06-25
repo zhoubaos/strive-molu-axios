@@ -14,6 +14,9 @@ import MergeConfig from './MergeConfig.ts';
 import RequestPool from './RequestPool.ts';
 import EventEmitter from './EventEmitter.ts';
 
+/**
+ * @desc 基于axios的请求库
+ */
 class StriveMoluAxios {
   /**
    * 合并的配置对象

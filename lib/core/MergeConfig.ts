@@ -13,6 +13,10 @@ const contentTypeReflect = {
   json: { 'Content-Type': 'application/json;charset=UTF-8' },
   formdata: { 'Content-Type': 'multipart/formdata' }
 };
+
+/**
+ * @desc 合并请求参数
+ */
 class MergeConfig {
   url?: Config['url'];
   data?: Config['data'];

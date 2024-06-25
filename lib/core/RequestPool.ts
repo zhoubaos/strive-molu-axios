@@ -2,6 +2,9 @@ import type { AxiosRequestConfig } from '../typescript/options.ts';
 import { Typings } from '../utils/typings.ts';
 import { Md5 } from 'ts-md5';
 
+/**
+ * @desc 请求池
+ */
 class RequestPool {
   /**
    * api 请求池
