@@ -2,6 +2,7 @@ import smAxios from 'strive-molu-axios';
 
 export const request = smAxios.create({
   baseURL: '/api',
+  contentType: 'formdata',
   headers: {
     Authorization: 'xxxx token'
   },
@@ -11,6 +12,7 @@ export const request = smAxios.create({
   customBridgeSuccessData(res: any) {
     return res.data;
   },
+
   customBridgeSuccess(res: any) {
     return true;
   },

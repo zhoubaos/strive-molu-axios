@@ -12,6 +12,9 @@ export class SmAxiosError<Config = any> extends Error {
    */
   name;
   msg;
+  /**
+   * axios和该库返回的错误原始信息
+   */
   config: ErrorConfig<Config>;
   constructor(name: ErrorName, message: string, config?: ErrorConfig<Config>) {
     super(`[${config?.code ?? 'UnKnown'}] ${message}`);

@@ -124,10 +124,12 @@ export type AxiosFlagError = AxiosError & { flag?: ResFlag };
 export type CreateInstance = (config?: DefaultConfig) => SmAxios;
 
 /**
- * @desc smAxios实例
+ * @desc smAxios方法扩展的属性
  */
-export type SmAxios = {
-  create: (config?: DefaultConfig) => SmAxios;
+type ExtendConfig = {
+  create: (
+    config?: DefaultConfig
+  ) => Omit<ExtendConfig, 'create'> & (<T = any>(config?: UrlRequiredConfig) => Promise<T>);
   cancelAllRequesting: StriveMoluAxios['cancelAllRequesting'];
   request: StriveMoluAxios['request'];
   get: StriveMoluAxios['get'];
@@ -135,4 +137,9 @@ export type SmAxios = {
   setCongfig: StriveMoluAxios['setCongfig'];
   setHeaders: StriveMoluAxios['setHeaders'];
   setTimeouts: StriveMoluAxios['setTimeouts'];
-} & ((config?: UrlRequiredConfig) => any);
+};
+
+/**
+ * @desc smAxios实例
+ */
+export type SmAxios = ExtendConfig & (<T = any>(config?: UrlRequiredConfig) => Promise<T>);

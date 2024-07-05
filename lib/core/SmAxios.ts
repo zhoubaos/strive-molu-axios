@@ -152,8 +152,8 @@ class StriveMoluAxios {
   /**
    * @desc 提供get请求别名方法
    */
-  get(url: string, config: OmitUrlMthodConfig) {
-    return this.request({
+  get<T = any>(url: string, config: OmitUrlMthodConfig = {}) {
+    return this.request<T>({
       ...config,
       url,
       method: 'get'
@@ -161,19 +161,19 @@ class StriveMoluAxios {
   }
   /**
    * @desc 提供post请求别名方法
-   * @param isForm
+   * @param isForm 是否是表单请求
    *
    * * true：`contentType`值为`formdata`
    * * false：`contentType`值为默认值
    */
-  post(url: string, config: OmitUrlMthodConfig, isForm = true) {
+  post<T = any>(url: string, config: OmitUrlMthodConfig = {}, isForm = true) {
     const mConfig: any = {
       ...config,
       url,
       method: 'post'
     };
     isForm && (mConfig.contentType = 'formdata');
-    return this.request(mConfig);
+    return this.request<T>(mConfig);
   }
 
   /**
