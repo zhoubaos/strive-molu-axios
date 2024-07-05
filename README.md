@@ -1,12 +1,12 @@
+## 介绍
+
+基于axios进行二次封装，除了支持axios原有功能外，额外新增接口失败重新请求、取消重复请求、批量取消正在发送的请求功能。
+
 ## 依赖安装
 
 ```bash
 npm install strive-molu-axios
 ```
-
-## 介绍
-
-基于axios进行二次封装，除了支持axios原有功能外，额外新增接口失败重新请求、取消重复请求、批量取消正在发送的请求功能。
 
 ## 基本用例
 
@@ -132,18 +132,23 @@ smAxios.post('/regsiter', {
 });
 ```
 
-`smAxios`额外支持的属性方法。
-**smAxios.get(url,config)**
+**`smAxios`额外支持的属性方法**
+smAxios.get(url,config)
 创建一个get请求。
-**smAxios.post(url,config,isForm)**
+
+smAxios.post(url,config,isForm)
 创建一个post请求。
-**setTimeouts(n)**
+
+setTimeouts(n)
 修改配置中的`timeout`值
-**setHeaders(o)**
+
+setHeaders(o)
 修改配置中的请求头参数
-**setCongfig(config)**
+
+setCongfig(config)
 去修改默认的配置
-**cancelAllRequesting(str)**
+
+cancelAllRequesting(str)
 取消所有正在请求的接口，可以传入取消请求的原因。该方法基于原生的`AbortController`方法实现。
 
 ## 创建新的实例
