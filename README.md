@@ -287,9 +287,9 @@ smAxios.create({
 
 ## 重复请求
 
-<div style="font-size:14px;border-radius:4px;margin:4px 0;padding:10px;color:#262626;background:rgba(192,221,252,0.5)">
-判断是否为重复请求的标准是通过合并的最终配置生成的hash值来判断。
-</div>
+> [!tip] > **如何判断是否为重复请求？**
+>
+> 通过传入的请求参数配置，然后和实例参数配置，默认参数配置进行合并生成的hash值来判断。
 
 通过配置中的`repeatRequestStrategy`属性来控制重复请求的拦截方式。
 
