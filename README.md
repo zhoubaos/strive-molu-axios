@@ -132,26 +132,16 @@ smAxios.post('/regsiter', {
 });
 ```
 
-**`smAxios`额外支持的属性方法**
-smAxios.get(url,config)
-创建一个get请求。
+**`smAxios`额外支持的属性方法。**
 
-smAxios.post(url,config,isForm)
-创建一个post请求。
+- get(url,config)：创建一个get请求
+- post(url,config,isForm)：创建一个post请求
+- setTimeouts(num)：修改配置中的`timeout`值
+- setHeaders(obj)：修改配置中的请求头参数
+- setCongfig(config)：修改默认的配置
+- cancelAllRequesting(str)：取消所有正在请求的接口，可以传入取消请求的原因。该方法基于原生的`AbortController`方法实现
 
-setTimeouts(n)
-修改配置中的`timeout`值
-
-setHeaders(o)
-修改配置中的请求头参数
-
-setCongfig(config)
-去修改默认的配置
-
-cancelAllRequesting(str)
-取消所有正在请求的接口，可以传入取消请求的原因。该方法基于原生的`AbortController`方法实现。
-
-## 创建新的实例
+## 新的实例
 
 `smAxios`方法本身是基于内置默认配置创建的实例，可以使用该方法的`create`属性方法，传入新的参数去覆盖默认参数，然后创建新的实例具有`smAxios`相同的扩展方法。
 
@@ -295,6 +285,33 @@ smAxios.create({
 });
 ```
 
+## 重复请求
+
+<div style="font-size:14px;border-radius:4px;margin:4px 0;padding:10px;color:#262626;background:rgba(192,221,252,0.5)">
+判断是否为重复请求的标准是通过合并的最终配置生成的hash值来判断。
+</div>
+
+通过配置中的`repeatRequestStrategy`属性来控制重复请求的拦截方式。
+
+```typescript
+import smAxios from 'strive-molu-axios';
+
+// 不会对重复请求做任何处理
+smAxios.get('/user', {
+  repeatRequestStrategy: 0 // 设置为 false 也可以达到同样的效果
+});
+
+// 会拦截重复的请求，且抛出错误提示
+smAxios.get('/user', {
+  repeatRequestStrategy: 1 // 设置为 true 也可以达到同样的效果
+});
+
+// 会拦截重复请求，但会返回第一次请求后的返回值。
+smAxios.get('/user', {
+  repeatRequestStrategy: 2
+});
+```
+
 ## 取消请求
 
 单个接口取消请求
@@ -321,6 +338,9 @@ controller.abort();
 ```typescript
 import smAxios from 'strive-molu-axios';
 
+smAxios.get('/xxx');
+smAxios.get('/ddd');
+
 smAxios.cancelAllRequesting('手动取消请求');
 ```
 
@@ -341,3 +361,116 @@ smAxios.get('/user').catch((e) => {
 - config：错误的原始对象。
 
 对于`axios`的错误配置请参考[链接](https://axios-http.com/zh/docs/handling_errors)。
+
+## TypeScript支持
+
+该库使用`typescript`进行编写，可以在TS环境下提供完整的类型支持。
+
+```typescript
+import smAxios from 'strive-molu-axios';
+
+type ResInfo = {
+  name: string;
+  age: number;
+};
+
+/**
+ * res的类型 => Promise<ResInfo>
+ */
+const res = smAxios<ResInfo>({
+  url: '/user'
+});
+```
+
+以下是请求实例完整配置类型。
+
+```typescript
+type Config = {
+  /**
+   * 请求地址
+   */
+  url?: string;
+  /**
+   * 请求传参
+   */
+  data?: any;
+  /**
+   * 请求方法
+   *
+   * @default 'get'
+   */
+  method?: Method;
+  /**
+   * 如果url是一个相对地址会自动添加在url前面
+   *
+   * @default '/api'
+   */
+  baseURL?: string;
+  /**
+   * 接口超时时间，单位ms
+   *
+   * @default 1000
+   */
+  timeout?: number;
+  /**
+   * 请求头`Content-Type`属性的值
+   *
+   * @default 'json'
+   *
+   * * json：application/json;charset=UTF-8;
+   * * urlencoded：application/x-www-form-urlencoded;charset=UTF-8
+   * * formdata：multipart/formdata
+   */
+  contentType?: 'json' | 'urlencoded' | 'formdata';
+  /**
+   * 自定义请求头
+   *
+   * 注意：请求头设置的优先级会低于contentType属性
+   */
+  headers?: AxiosRequestConfig['headers'];
+  /**
+   * 接口失败重试次数
+   *
+   * @default 0
+   */
+  retryTimes?: number;
+  /**
+   * 对于重复请求的处理策略
+   *
+   * * false 允许重复的请求
+   * * 1 | true 取消重复的请求，直接抛出重复请求的错误。
+   * * 2 取消重复的请求，不会抛出错误，会返回接口数据。
+   * @default true
+   */
+  repeatRequestStrategy?: boolean | 1 | 2;
+  /**
+   * 用于判断接口是否成功的函数
+   *
+   * @param `res` axios请求成功返回数据
+   */
+  customBridgeSuccess?: (res: any) => boolean;
+  /**
+   * 用于处理`customBridgeSuccess`方法结果为true的情况下的返回结果
+   *
+   * @param `res` axios请求成功返回数据
+   */
+  customBridgeSuccessData?: (res: any) => unknown;
+
+  /**
+   * 用于获取`customBridgeSuccess`方法结果为false的情况下的打印的错误信息
+   * @param error
+   */
+  customBridgeErrorMsg?: (error: any) => string;
+  /**
+   * 用于打印原始的错误信息
+   * @param error
+   */
+  getSourceError?: (error: any) => void;
+  /**
+   * 自定义axios请求配置
+   *
+   * 注意：如果该配置的属性和Options冲突，会优先使用Option的属性值
+   */
+  axiosReqConfig?: AxiosRequestConfig;
+};
+```
