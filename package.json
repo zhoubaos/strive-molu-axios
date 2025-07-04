@@ -39,7 +39,7 @@
     "build": "tsup",
     "lint": "eslint .",
     "lint:fix": "pnpm run lint --fix",
-    "zx:tag": "tsx bin/zx/tag.ts",
+    "tag": "tsx bin/zx/tag.ts",
     "typecheck": "tsc --noEmit",
     "typecheck:client": "pnpm -C examples/client run typecheck",
     "client:dev": "pnpm -C examples/client run dev",
