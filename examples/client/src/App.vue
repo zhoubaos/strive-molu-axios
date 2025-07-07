@@ -34,7 +34,7 @@ const rules = reactive({
 
 const onClick_submit = () => {
   getApi();
-  getApi();
+  // getApi();
 };
 const onClick_submit1 = () => {
   getApiV2();

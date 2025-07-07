@@ -34,6 +34,8 @@ class MergeConfig {
   customBridgeSuccessData;
   customBridgeErrorMsg;
   getSourceError;
+  axiosRequestInterceptors;
+  axiosResponseInterceptors;
   /**
    * 可以直接被axios识别的请求属性。
    * 详见：https://axios-http.com/zh/docs/req_config
@@ -52,6 +54,8 @@ class MergeConfig {
     this.customBridgeSuccessData = config.customBridgeSuccessData ?? defConfig.customBridgeSuccessData;
     this.customBridgeErrorMsg = config.customBridgeErrorMsg ?? defConfig.customBridgeErrorMsg;
     this.getSourceError = config.getSourceError ?? defConfig.getSourceError;
+    this.axiosRequestInterceptors = config.axiosRequestInterceptors ?? [];
+    this.axiosResponseInterceptors = config.axiosResponseInterceptors ?? [];
   }
 
   /**

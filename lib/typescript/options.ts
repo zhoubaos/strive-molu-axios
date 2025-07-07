@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig, AxiosError, Method } from 'axios';
+import type { AxiosRequestConfig, AxiosError, Method, Axios } from 'axios';
 import type { SetRequiredKey } from './utils.ts';
 import StriveMoluAxios from '../core/SmAxios.ts';
 export type { AxiosRequestConfig };
@@ -6,7 +6,7 @@ export type { AxiosRequestConfig };
 /**
  * @desc 请求属性配置
  */
-export type Config = {
+export type Config<V = any> = {
   /**
    * 请求地址
    */
@@ -93,6 +93,14 @@ export type Config = {
    * 注意：如果该配置的属性和Options冲突，会优先使用Option的属性值
    */
   axiosReqConfig?: AxiosRequestConfig;
+  /**
+   * 请求拦截器
+   */
+  axiosRequestInterceptors?: Array<Parameters<Axios['interceptors']['request']['use']>>;
+  /**
+   * 响应拦截器
+   */
+  axiosResponseInterceptors?: Array<Parameters<Axios['interceptors']['response']['use']>>;
 };
 /**
  * @desc 有默认值的请求属性配置

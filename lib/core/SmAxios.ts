@@ -194,14 +194,24 @@ class StriveMoluAxios {
    * @desc 给axios实例绑定拦截器
    */
   private _bindAxiosInterceptors() {
-    this._axiosInstance.interceptors.request.use(
-      this.axiosRequestInterceptorsSuccess,
-      this.axiosRequestInterceptorsError
-    );
-    this._axiosInstance.interceptors.response.use(
-      this.axiosResponseInterceptorsSuccess,
-      this.axiosResponseInterceptorsError
-    );
+    const reqIntercep = [
+      [this.axiosRequestInterceptorsSuccess, this.axiosRequestInterceptorsError],
+      ...this._mConfig.axiosRequestInterceptors
+    ];
+    const respIntercep = [
+      [this.axiosResponseInterceptorsSuccess, this.axiosResponseInterceptorsError],
+      ...this._mConfig.axiosResponseInterceptors
+    ];
+
+    // 绑定请求拦截器
+    for (const req of reqIntercep) {
+      this._axiosInstance.interceptors.request.use(...(req as any));
+    }
+
+    // 绑定响应拦截器
+    for (const resp of respIntercep) {
+      this._axiosInstance.interceptors.response.use(...(resp as any));
+    }
   }
   /**
    * @function axios请求拦截器

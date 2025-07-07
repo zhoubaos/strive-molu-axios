@@ -20,7 +20,7 @@ export default defineConfig({
     open: false, //启动本地服务器打开浏览器
     proxy: {
       '/api': {
-        target: 'http://192.168.2.58:3000',
+        target: 'http://192.168.3.175:3000',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, '')
       }
