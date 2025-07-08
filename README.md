@@ -356,10 +356,10 @@ smAxios.get('/user').catch((e) => {
 });
 ```
 
-包含`name`、`msg`和`config`3个属性。
+包含`name`、`message`和`config`3个属性。
 
 - name：表示错误的类型。
-- msg：错误的提示信息。
+- message：错误的提示信息。
 - config：错误的原始对象。
 
 对于`axios`的错误配置请参考[链接](https://axios-http.com/zh/docs/handling_errors)。
