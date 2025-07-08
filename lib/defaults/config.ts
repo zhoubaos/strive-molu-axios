@@ -20,7 +20,9 @@ const defConfig: Required<DefaultConfig> = {
   },
   getSourceError(error: any) {
     //
-  }
+  },
+  axiosRequestInterceptors: [],
+  axiosResponseInterceptors: []
 };
 
 export default defConfig;

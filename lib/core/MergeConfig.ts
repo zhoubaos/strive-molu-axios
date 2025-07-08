@@ -54,8 +54,8 @@ class MergeConfig {
     this.customBridgeSuccessData = config.customBridgeSuccessData ?? defConfig.customBridgeSuccessData;
     this.customBridgeErrorMsg = config.customBridgeErrorMsg ?? defConfig.customBridgeErrorMsg;
     this.getSourceError = config.getSourceError ?? defConfig.getSourceError;
-    this.axiosRequestInterceptors = config.axiosRequestInterceptors ?? [];
-    this.axiosResponseInterceptors = config.axiosResponseInterceptors ?? [];
+    this.axiosRequestInterceptors = config.axiosRequestInterceptors ?? defConfig.axiosRequestInterceptors;
+    this.axiosResponseInterceptors = config.axiosResponseInterceptors ?? defConfig.axiosResponseInterceptors;
   }
 
   /**
@@ -70,7 +70,7 @@ class MergeConfig {
       timeout: this.timeout
     };
     // 适配axios传参
-    if (AdaptAxiosDataMethods.includes(aConfig.method as string)) {
+    if (AdaptAxiosDataMethods.includes(aConfig.method.toLowerCase())) {
       aConfig.data = this.data;
     } else {
       aConfig.params = this.data;
