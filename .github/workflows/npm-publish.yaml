@@ -4,6 +4,15 @@ on:
   push:
     tags:
       - '*'
+  workflow_dispatch:
+    inputs:
+      node_version:
+        description: 'node版本'
+        type: choice
+        default: '18'
+        options:
+          - '16'
+          - '18'
 
 jobs:
   publish:
@@ -16,16 +25,12 @@ jobs:
       - name: Set Node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: ${{github.event.inputs.node_version}}
           registry-url: https://registry.npmjs.org
 
         # 设置pnpm
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
-
-        # 清除缓存
-      - name: rm cache
-        run: pnpm store prune
 
       # 根据pnpm-lock.yaml文件中的版本安装依赖，且锁定该文件
       - name: Install Dependencies
