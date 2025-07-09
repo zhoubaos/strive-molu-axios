@@ -25,7 +25,7 @@ jobs:
 
       # 根据pnpm-lock.yaml文件中的版本安装依赖，且锁定该文件
       - name: Install Dependencies
-        run: pnpm i --frozen-lockfile
+        run: pnpm i
 
       - name: Build Dist
         run: pnpm build
