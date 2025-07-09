@@ -23,6 +23,10 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
 
+        # 清除缓存
+      - name: rm cache
+        run: pnpm store prune
+
       # 根据pnpm-lock.yaml文件中的版本安装依赖，且锁定该文件
       - name: Install Dependencies
         run: pnpm i
