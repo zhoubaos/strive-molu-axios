@@ -9,7 +9,7 @@ import type {
   MergeRequestConfig
 } from '../typescript/options.ts';
 import { prsetCodeToText } from '../defaults/error.ts';
-import { getSmError, ErrorName } from './SmAxiosError.ts';
+import { getSmError, ErrorName, SmAxiosError } from './SmAxiosError.ts';
 import { deepClone } from '../utils/index.ts';
 import { getAxiosConfig, mergeConfig } from './MergeConfig.ts';
 import RequestPool from './RequestPool.ts';
@@ -102,7 +102,7 @@ class StriveMoluAxios {
           throw res;
         }
       })
-      .catch((error: any) => {
+      .catch<SmAxiosError>((error: any) => {
         if (config.retryTimes >= 0) {
           return this._request(config);
         } else {

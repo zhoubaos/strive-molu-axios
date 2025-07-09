@@ -10,6 +10,7 @@ export class SmAxiosError<Config = any> extends Error {
   /**
    * 错误类型
    */
+  code;
   name;
   message;
   /**
@@ -18,6 +19,7 @@ export class SmAxiosError<Config = any> extends Error {
   config: ErrorConfig<Config>;
   constructor(name: ErrorName, message: string, config?: ErrorConfig<Config>) {
     super(`[${config?.code ?? 'UnKnown'}] ${message}`);
+    this.code = config?.code;
     this.name = name;
     this.message = message;
     this.config = config ?? {};
