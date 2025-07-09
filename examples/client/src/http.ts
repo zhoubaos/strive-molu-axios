@@ -17,7 +17,7 @@ export const request = smAxios.create({
     return true;
   },
   getSourceError(error: any) {
-    console.log('===source error====', error);
+    // console.log('===source error====', error);
   },
   axiosRequestInterceptors: [
     [

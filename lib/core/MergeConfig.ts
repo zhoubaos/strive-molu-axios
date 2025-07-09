@@ -35,9 +35,6 @@ export function mergeConfig(source: Config, target: Config = {}) {
   // 归一化RepeatRequestStrategy的值
   Reflect.set(config, 'RepeatRequestStrategy', getRepeatReqStrategy(config.repeatRequestStrategy));
 
-  // 设置唯一key
-  Reflect.set(config, 'Axioskey', RequestPool.getConfigKey(config));
-
   return config as MergeRequestConfig;
 }
 

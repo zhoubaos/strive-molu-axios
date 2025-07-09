@@ -33,9 +33,9 @@ const rules = reactive({
 });
 
 const onClick_submit = () => {
+  // getApi();
   getApi();
-  getApi();
-  // getApiV2();
+  getApiV2();
 };
 
 const onClick_submit1 = () => {
@@ -53,7 +53,6 @@ const getApi = async () => {
     console.log(res);
   } catch (error: any) {
     ElMessage.error(error.message);
-    console.error(error);
   }
 };
 
@@ -63,7 +62,6 @@ const getApiV2 = async () => {
     console.log(res);
   } catch (error: any) {
     ElMessage.error(error.message);
-    console.error(error.toString());
   }
 };
 </script>

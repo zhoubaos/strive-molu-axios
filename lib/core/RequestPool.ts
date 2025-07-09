@@ -43,6 +43,15 @@ class RequestPool {
   }
 
   /**
+   * @des 移除所有接口
+   */
+  removeAll() {
+    setTimeout(() => {
+      this.pool.clear();
+    }, this.delayTime);
+  }
+
+  /**
    * @desc 判断接口是否存在
    * @param config
    */

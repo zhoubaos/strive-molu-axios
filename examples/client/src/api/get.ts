@@ -3,8 +3,8 @@ import smAxios, { request } from '../http';
 // 重复请求
 export const getServer = () => {
   return request({
-    url: '/getApi',
-    repeatRequestStrategy: 2
+    url: '/getApi'
+    // repeatRequestStrategy: 2
   });
 };
 // 重复请求1
