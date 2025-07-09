@@ -111,6 +111,11 @@ export type DefaultConfig = Omit<Config, 'url' | 'data'>;
  */
 export type UrlRequiredConfig = SetRequiredKey<Config, 'url'>;
 
+export type MergeRequestConfig = Required<Config> & {
+  RepeatRequestStrategy: 0 | 1 | 2;
+  Axioskey: string;
+};
+
 /**
  * @desc 排除url和method属性的配置
  */
@@ -129,7 +134,7 @@ export type AxiosFlagError = AxiosError & { flag?: ResFlag };
 /**
  * @desc 创建smAxios实例函数
  */
-export type CreateInstance = (config?: DefaultConfig) => SmAxios;
+export type CreateInstance = (config: DefaultConfig) => SmAxios;
 
 /**
  * @desc smAxios方法扩展的属性

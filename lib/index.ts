@@ -1,8 +1,10 @@
+import { mergeConfig } from './core/MergeConfig.ts';
 import StriveMoluAxios from './core/SmAxios.ts';
 import type { SmAxios, CreateInstance } from './typescript/options.ts';
+import defConfig from './defaults/config.ts';
 import { bind, extend } from './utils/index.ts';
 
-const createInstance: CreateInstance = function (config = {}) {
+const createInstance: CreateInstance = function (config: any) {
   // 如果不传或传个空对象，采用默认配置
   const context = new StriveMoluAxios(config);
   const instance = bind<SmAxios>(StriveMoluAxios.prototype.request, context);
@@ -14,13 +16,13 @@ const createInstance: CreateInstance = function (config = {}) {
   extend(instance, context, null, true);
 
   instance.create = function (config) {
-    return createInstance(config);
+    return createInstance(mergeConfig(defConfig, config));
   };
 
   return instance;
 };
 
-const smAxios = createInstance();
+const smAxios = createInstance(defConfig);
 
 export * from './typescript/index.ts';
 export default smAxios;

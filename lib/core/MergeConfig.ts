@@ -1,4 +1,4 @@
-import type { Config, DefaultConfig, AxiosRequestConfig } from '../typescript/options.ts';
+import type { Config, DefaultConfig, AxiosRequestConfig, MergeRequestConfig } from '../typescript/options.ts';
 import { Typings } from '../utils/index.ts';
 import RequestPool from './RequestPool.ts';
 import defConfig from '../defaults/config.ts';
@@ -15,89 +15,14 @@ const contentTypeReflect = {
 };
 
 /**
- * @desc 合并请求参数
+ * 合并配置
  */
-class MergeConfig {
-  url?: Config['url'];
-  data?: Config['data'];
-  /**
-   *  请求库的属性
-   */
-  baseURL;
-  method;
-  timeout;
-  contentType;
-  retryTimes;
-  repeatRequestStrategy;
-  headers: AxiosRequestConfig['headers'];
-  customBridgeSuccess;
-  customBridgeSuccessData;
-  customBridgeErrorMsg;
-  getSourceError;
-  axiosRequestInterceptors;
-  axiosResponseInterceptors;
-  /**
-   * 可以直接被axios识别的请求属性。
-   * 详见：https://axios-http.com/zh/docs/req_config
-   */
-  axiosReqConfig;
-  constructor(config: DefaultConfig) {
-    this.baseURL = config.baseURL ?? defConfig.baseURL;
-    this.method = config.method ?? defConfig.method;
-    this.timeout = config.timeout ?? defConfig.timeout;
-    this.contentType = config.contentType ?? defConfig.contentType;
-    this.retryTimes = config.retryTimes ?? defConfig.retryTimes;
-    this.repeatRequestStrategy = config.repeatRequestStrategy ?? defConfig.repeatRequestStrategy;
-    this.headers = config.headers ?? defConfig.headers;
-    this.axiosReqConfig = config.axiosReqConfig ?? defConfig.axiosReqConfig;
-    this.customBridgeSuccess = config.customBridgeSuccess ?? defConfig.customBridgeSuccess;
-    this.customBridgeSuccessData = config.customBridgeSuccessData ?? defConfig.customBridgeSuccessData;
-    this.customBridgeErrorMsg = config.customBridgeErrorMsg ?? defConfig.customBridgeErrorMsg;
-    this.getSourceError = config.getSourceError ?? defConfig.getSourceError;
-    this.axiosRequestInterceptors = config.axiosRequestInterceptors ?? defConfig.axiosRequestInterceptors;
-    this.axiosResponseInterceptors = config.axiosResponseInterceptors ?? defConfig.axiosResponseInterceptors;
-  }
-
-  /**
-   * @desc 获取可以直接用于axios请求参数的对象
-   */
-  get AxiosConfig(): AxiosRequestConfig {
-    const aConfig = {
-      ...this.axiosReqConfig,
-      url: this.url ?? '',
-      method: this.method,
-      baseURL: this.baseURL,
-      timeout: this.timeout
-    };
-    // 适配axios传参
-    if (AdaptAxiosDataMethods.includes(aConfig.method.toLowerCase())) {
-      aConfig.data = this.data;
-    } else {
-      aConfig.params = this.data;
-    }
-
-    // 合并axios headers
-    aConfig.headers = {
-      ...(aConfig?.headers ?? {}),
-      ...this.headers,
-      ...(contentTypeReflect[this.contentType] ?? {})
-    };
-
-    return aConfig;
-  }
-
-  /**
-   * @desc 接口对于重复请求的策略
-   *
-   * * 0 不做任何限制
-   * * 1 拒绝重复请求，并报错
-   * * 2 允许重复请求，但不会请求接口，会返回第一次请求的数据
-   */
-  get RepeatReqStrategy() {
+export function mergeConfig(source: Config, target: Config = {}) {
+  function getRepeatReqStrategy(repeatRequestStrategy: Config['repeatRequestStrategy']) {
     let s = 0;
-    if (this.repeatRequestStrategy === false) {
+    if (repeatRequestStrategy === false) {
       s = 0;
-    } else if (this.repeatRequestStrategy === true || this.repeatRequestStrategy === 1) {
+    } else if (repeatRequestStrategy === true || repeatRequestStrategy === 1) {
       s = 1;
     } else {
       s = 2;
@@ -105,38 +30,41 @@ class MergeConfig {
     return s;
   }
 
-  /**
-   * @desc 根据axiosConfig获取唯一的key
-   */
-  get Axioskey() {
-    return RequestPool.getConfigKey(this.AxiosConfig);
-  }
+  const config = defu(target, source);
 
-  /**
-   * @desc 合并配置
-   * @param config
-   */
-  merges(config: Config) {
-    for (const [key, value] of Object.entries(config)) {
-      this.merge(key as any, value);
-    }
-  }
+  // 归一化RepeatRequestStrategy的值
+  Reflect.set(config, 'RepeatRequestStrategy', getRepeatReqStrategy(config.repeatRequestStrategy));
 
-  /**
-   * @desc 合并配置属性
-   * @param key
-   * @param value
-   */
-  merge<K extends keyof Config>(key: K, value: Config[K]) {
-    if (key === 'headers') {
-      this.headers = Object.assign(this.headers as any, Typings.isObject(value) ? value : {});
-    } else if (key === 'axiosReqConfig') {
-      this.axiosReqConfig = defu(this.axiosReqConfig, Typings.isObject(value) ? value : {});
-    } else {
-      //@ts-ignore
-      this[key] = value;
-    }
-  }
+  // 设置唯一key
+  Reflect.set(config, 'Axioskey', RequestPool.getConfigKey(config));
+
+  return config as MergeRequestConfig;
 }
 
-export default MergeConfig;
+/**
+ * 获取axios需要的配置
+ */
+export function getAxiosConfig(config: Config) {
+  const aConfig = {
+    ...config.axiosReqConfig,
+    url: config.url ?? '',
+    method: config.method,
+    baseURL: config.baseURL,
+    timeout: config.timeout
+  } as Required<AxiosRequestConfig>;
+  // 适配axios传参
+  if (AdaptAxiosDataMethods.includes(aConfig.method.toLowerCase())) {
+    aConfig.data = config.data;
+  } else {
+    aConfig.params = config.data;
+  }
+
+  // 合并axios headers
+  aConfig.headers = {
+    ...(aConfig?.headers ?? {}),
+    ...config.headers,
+    ...(contentTypeReflect[config.contentType ?? 'json'] ?? {})
+  };
+
+  return aConfig;
+}

@@ -21,7 +21,7 @@ export const request = smAxios.create({
   },
   axiosRequestInterceptors: [
     [
-      (config) => {
+      (config: any) => {
         console.log('==请求拦截==');
 
         return config;

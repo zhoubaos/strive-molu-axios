@@ -26,9 +26,11 @@ const people = [
 ];
 
 export default function (req, res) {
-  res.writeHead(200, {
-    'Content-Type': 'text/json;charset=utf-8'
-  });
-  res.write(JSON.stringify(people));
-  res.end();
+  setTimeout(() => {
+    res.writeHead(200, {
+      'Content-Type': 'text/json;charset=utf-8'
+    });
+    res.write(JSON.stringify(people));
+    res.end();
+  }, 500);
 }

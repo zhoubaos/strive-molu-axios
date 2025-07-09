@@ -11,7 +11,7 @@ export default defineConfig((options) => {
     shims: true,
     clean: true, //每次都清除dist目录
     dts: true, // 生成 .d.ts 文件
-    minify: !options.watch,
+    // minify: !options.watch,
     format: ['cjs', 'esm'], // 输出格式
     target: 'node16' // 目标环境
   };

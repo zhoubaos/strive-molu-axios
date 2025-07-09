@@ -5,12 +5,13 @@ import type {
   UrlRequiredConfig,
   OmitUrlMthodConfig,
   ResFlag,
-  AxiosFlagError
+  AxiosFlagError,
+  MergeRequestConfig
 } from '../typescript/options.ts';
 import { prsetCodeToText } from '../defaults/error.ts';
 import { getSmError, ErrorName } from './SmAxiosError.ts';
 import { deepClone } from '../utils/index.ts';
-import MergeConfig from './MergeConfig.ts';
+import { getAxiosConfig, mergeConfig } from './MergeConfig.ts';
 import RequestPool from './RequestPool.ts';
 import EventEmitter from './EventEmitter.ts';
 
@@ -18,10 +19,7 @@ import EventEmitter from './EventEmitter.ts';
  * @desc 基于axios的请求库
  */
 class StriveMoluAxios {
-  /**
-   * 合并的配置对象
-   */
-  private _mConfig;
+  private _default: Required<DefaultConfig>;
   /**
    * 用于记录真在请求的接口
    */
@@ -38,12 +36,12 @@ class StriveMoluAxios {
    * axios实例对象
    */
   private _axiosInstance: AxiosInstance;
-  constructor(config: DefaultConfig = {}) {
-    this._mConfig = new MergeConfig(config);
+  constructor(config: Required<DefaultConfig>) {
+    this._default = config;
     this._reqPool = new RequestPool();
     this._evEmitter = new EventEmitter();
     this._controller = new AbortController();
-    this._axiosInstance = axios.create(this._mConfig.AxiosConfig);
+    this._axiosInstance = axios.create(getAxiosConfig(this._default));
     this._bindAxiosInterceptors();
   }
 
@@ -52,42 +50,43 @@ class StriveMoluAxios {
    * @param config
    */
   async request<T = any>(config: UrlRequiredConfig): Promise<T> {
-    // 合并传入的配置
-    this._mConfig.merges(config);
+    config = mergeConfig(this._default, config);
     //给每个接口添加取消接口请求的标志
-    this._mConfig.merge('axiosReqConfig', {
-      signal: this._controller.signal
+    const _mConfig = mergeConfig(config, {
+      axiosReqConfig: {
+        signal: this._controller.signal
+      }
     });
 
-    if (this._mConfig.RepeatReqStrategy === 0) return this._request();
+    if (_mConfig.RepeatRequestStrategy == 0) return this._request(_mConfig);
     else {
-      if (this._reqPool.isExistKey(this._mConfig.Axioskey)) {
+      if (this._reqPool.isExistKey(_mConfig.Axioskey)) {
         // 重复的接口直接返回
-        if (this._mConfig.RepeatReqStrategy === 1) {
+        if (_mConfig.RepeatRequestStrategy === 1) {
           return Promise.reject(getSmError('接口重复请求'));
         } else {
           // 重复的接口通过发布-订阅模式返回数据
           return new Promise((resolve, reject) => {
-            this._evEmitter.on(this._mConfig.Axioskey, resolve, reject);
+            this._evEmitter.on(_mConfig.Axioskey, resolve, reject);
           });
         }
       } else {
-        this._reqPool.add(this._mConfig.AxiosConfig);
-        return this._request();
+        this._reqPool.add(_mConfig.Axioskey);
+        return this._request(_mConfig);
       }
     }
   }
 
-  private _request(): any {
-    this._mConfig.retryTimes--;
+  private _request(config: MergeRequestConfig): any {
+    config.retryTimes--;
     return (this._axiosInstance as AxiosInstance)
-      .request(this._mConfig.AxiosConfig)
+      .request(getAxiosConfig(config))
       .then((res: AxiosResponse & { flag?: ResFlag }) => {
-        if (this._mConfig.customBridgeSuccess(res)) {
+        if (config.customBridgeSuccess(res)) {
           res.flag = 'BridgeSuccess';
-          const resultData = this._mConfig.customBridgeSuccessData(res);
-          if (this._mConfig.RepeatReqStrategy === 2) {
-            this._evEmitter.emit(this._mConfig.Axioskey, 'resolve', resultData);
+          const resultData = config.customBridgeSuccessData(res);
+          if (config.RepeatRequestStrategy === 2) {
+            this._evEmitter.emit(config.Axioskey, 'resolve', resultData);
           }
           return resultData;
         } else {
@@ -96,18 +95,18 @@ class StriveMoluAxios {
         }
       })
       .catch((error: any) => {
-        if (this._mConfig.retryTimes >= 0) {
-          return this._request();
+        if (config.retryTimes >= 0) {
+          return this._request(config);
         } else {
-          const e = this._handleAxiosResError(error);
-          if (this._mConfig.RepeatReqStrategy === 2) {
-            this._evEmitter.emit(this._mConfig.Axioskey, 'resolve', e);
+          const e = this._handleAxiosResError(error, config);
+          if (config.RepeatRequestStrategy === 2) {
+            this._evEmitter.emit(config.Axioskey, 'resolve', e);
           }
           throw e;
         }
       })
       .finally(() => {
-        this._mConfig.RepeatReqStrategy !== 0 && this._reqPool.remove(this._mConfig.AxiosConfig);
+        config.RepeatRequestStrategy != 0 && this._reqPool.remove(config.Axioskey);
       });
   }
 
@@ -115,15 +114,11 @@ class StriveMoluAxios {
    * @desc 处理axios响应报错
    * @param error
    */
-  private _handleAxiosResError(error: AxiosFlagError) {
-    this._mConfig.getSourceError(deepClone(error));
+  private _handleAxiosResError(error: AxiosFlagError, config: MergeRequestConfig) {
+    config.getSourceError(deepClone(error));
     if (error.flag === 'BridgeError') {
       error.code = 'BridgeError';
-      return getSmError(
-        ErrorName.SmAxios,
-        this._mConfig.customBridgeErrorMsg(error) ?? prsetCodeToText['BridgeError'],
-        error
-      );
+      return getSmError(ErrorName.SmAxios, config.customBridgeErrorMsg(error) ?? prsetCodeToText['BridgeError'], error);
     }
     // axios 请求报错
     else if (error.flag === 'ReqError') {
@@ -181,14 +176,14 @@ class StriveMoluAxios {
    * @param key
    * @param value
    */
-  setCongfig<K extends keyof Config>(key: K, value: Config[K]) {
-    this._mConfig.merge(key, value);
+  setCongfig<K extends keyof Config>(obj: Config) {
+    this._default = mergeConfig(this._default, obj);
   }
   setTimeouts(value: Config['timeout']) {
-    this.setCongfig('timeout', value);
+    this.setCongfig({ timeout: value });
   }
   setHeaders(value: Config['headers']) {
-    this.setCongfig('headers', value);
+    this.setCongfig({ headers: value });
   }
   /**
    * @desc 给axios实例绑定拦截器
@@ -196,11 +191,11 @@ class StriveMoluAxios {
   private _bindAxiosInterceptors() {
     const reqIntercep = [
       [this.axiosRequestInterceptorsSuccess, this.axiosRequestInterceptorsError],
-      ...this._mConfig.axiosRequestInterceptors
+      ...this._default.axiosRequestInterceptors
     ];
     const respIntercep = [
       [this.axiosResponseInterceptorsSuccess, this.axiosResponseInterceptorsError],
-      ...this._mConfig.axiosResponseInterceptors
+      ...this._default.axiosResponseInterceptors
     ];
 
     // 绑定请求拦截器
