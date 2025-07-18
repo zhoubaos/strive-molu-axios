@@ -1,30 +1,14 @@
+import { FlagKeys, CustomFlagEnum } from '../typescript/error.ts';
+
 /**
  * @desc 错误状态码
  */
-export const codes = [
-  400,
-  401,
-  403,
-  404,
-  405,
-  429,
-  500,
-  501,
-  502,
-  503,
-  504,
-  505,
-  'ECONNABORTED',
-  'ERR_CANCELED',
-  'UnKnown',
-  'BridgeError',
-  'ReqError',
-  'ResError'
-] as const;
+export const httpCodes = [400, 401, 403, 404, 405, 429, 500, 501, 502, 503, 504, 505] as const;
+
 /**
  * @desc 状态码对应的预设文本
  */
-export const prsetCodeToText: Record<(typeof codes)[number] | number, string> = {
+export const codeTextMap: Record<FlagKeys, string> = {
   400: '错误的请求',
   401: '未授权，请重新登录',
   403: '服务器拒绝访问',
@@ -37,10 +21,12 @@ export const prsetCodeToText: Record<(typeof codes)[number] | number, string> = 
   503: '服务器过载',
   504: '网络超时',
   505: 'http版本不支持该请求',
-  UnKnown: '未知错误',
-  ECONNABORTED: '请求时间超过TimeOut时间',
-  ERR_CANCELED: '手动取消请求',
-  BridgeError: '接口请求成功，但不满足成功条件',
-  ReqError: 'Axios请求报错',
-  ResError: 'Axios响应报错'
-};
+  [CustomFlagEnum.BridgeSuccess]: '桥接成功',
+  [CustomFlagEnum.UnKnown]: '未知错误',
+  [CustomFlagEnum.ECONNABORTED]: '请求时间超过TimeOut时间',
+  [CustomFlagEnum.ERRCANCELED]: '手动取消请求',
+  [CustomFlagEnum.BridgeError]: '桥接失败',
+  [CustomFlagEnum.AxiosReqError]: 'Axios请求报错',
+  [CustomFlagEnum.AxiosRespError]: 'Axios响应报错',
+  [CustomFlagEnum.RepeatReq]: '重复请求'
+} as const;

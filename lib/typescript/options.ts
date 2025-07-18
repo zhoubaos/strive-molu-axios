@@ -1,6 +1,7 @@
-import type { AxiosRequestConfig, AxiosError, Method, Axios } from 'axios';
+import type { AxiosRequestConfig, AxiosError, Method, Axios, AxiosResponse } from 'axios';
 import type { SetRequiredKey } from './utils.ts';
 import StriveMoluAxios from '../core/SmAxios.ts';
+import { FlagKeys } from './error.ts';
 export type { AxiosRequestConfig };
 
 /**
@@ -121,15 +122,12 @@ export type MergeRequestConfig = Required<Config> & {
  */
 export type OmitUrlMthodConfig = Omit<Config, 'url' | 'method'>;
 
-/**
- * @desc 接口响应数据标签
- */
-export type ResFlag = 'BridgeSuccess' | 'BridgeError' | 'ReqError' | 'ResError';
+export type AxiosFlagResponse = AxiosResponse & { flag?: FlagKeys };
 
 /**
  * @desc axios响应错误
  */
-export type AxiosFlagError = AxiosError & { flag?: ResFlag };
+export type AxiosFlagError = AxiosError & { flag: FlagKeys };
 
 /**
  * @desc 创建smAxios实例函数

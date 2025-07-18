@@ -12,5 +12,7 @@ export const getServerV2 = () => {
   return request({
     url: '/getapi'
     // repeatRequestStrategy: 2
+  }).catch((err) => {
+    console.log(222, err.flag, err.name, err.message, err.config);
   });
 };

@@ -1,20 +1,21 @@
-import axios, { type AxiosInstance, type InternalAxiosRequestConfig, type AxiosResponse } from 'axios';
+import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 import type {
   Config,
   DefaultConfig,
   UrlRequiredConfig,
   OmitUrlMthodConfig,
-  ResFlag,
   AxiosFlagError,
-  MergeRequestConfig
+  MergeRequestConfig,
+  AxiosFlagResponse
 } from '../typescript/options.ts';
-import { prsetCodeToText } from '../defaults/error.ts';
-import { getSmError, ErrorName, SmAxiosError } from './SmAxiosError.ts';
+import { codeTextMap } from '../defaults/error.ts';
+import { getSmError, ErrorNameEnum, SmAxiosError } from './SmAxiosError.ts';
 import { deepClone } from '../utils/index.ts';
 import { getAxiosConfig, mergeConfig } from './MergeConfig.ts';
 import RequestPool from './RequestPool.ts';
 import { AbortControllerPool } from './AbortControllerPool.ts';
 import EventEmitter from './EventEmitter.ts';
+import { FlagKeys, CustomFlagEnum } from '../typescript/error.ts';
 
 /**
  * @desc 基于axios的请求库
@@ -61,7 +62,7 @@ class StriveMoluAxios {
       if (this._reqPool.isExistKey(_mConfig.Axioskey)) {
         // 重复的接口直接返回
         if (_mConfig.RepeatRequestStrategy === 1) {
-          return Promise.reject(getSmError('接口重复请求'));
+          return Promise.reject(getSmError('接口重复请求', { flag: CustomFlagEnum.RepeatReq }));
         } else {
           // 重复的接口通过发布-订阅模式返回数据
           return new Promise((resolve, reject) => {
@@ -89,16 +90,16 @@ class StriveMoluAxios {
 
     return (this._axiosInstance as AxiosInstance)
       .request(getAxiosConfig(config))
-      .then((res: AxiosResponse & { flag?: ResFlag }) => {
+      .then((res: AxiosFlagResponse) => {
         if (config.customBridgeSuccess(res)) {
-          res.flag = 'BridgeSuccess';
+          res.flag = CustomFlagEnum.BridgeSuccess;
           const resultData = config.customBridgeSuccessData(res);
           if (config.RepeatRequestStrategy === 2) {
             this._evEmitter.emit(config.Axioskey, 'resolve', resultData);
           }
           return resultData;
         } else {
-          res.flag = 'BridgeError';
+          res.flag = CustomFlagEnum.BridgeError;
           throw res;
         }
       })
@@ -125,23 +126,21 @@ class StriveMoluAxios {
    */
   private _handleAxiosResError(error: AxiosFlagError, config: MergeRequestConfig) {
     config.getSourceError(deepClone(error));
-    if (error.flag === 'BridgeError') {
-      error.code = 'BridgeError';
-      return getSmError(ErrorName.SmAxios, config.customBridgeErrorMsg(error) ?? prsetCodeToText['BridgeError'], error);
+    if (error.flag === CustomFlagEnum.BridgeError) {
+      return getSmError(ErrorNameEnum.SmAxios, config.customBridgeErrorMsg(error) ?? codeTextMap[error.flag], error);
     }
     // axios 请求报错
-    else if (error.flag === 'ReqError') {
-      error.code = error.code ?? 'ReqError';
+    else if (error.flag === CustomFlagEnum.AxiosReqError) {
       // @ts-ignore
-      return getSmError(ErrorName.AxiosReq, prsetCodeToText[error.code ?? 'UnKnown'], error);
+      return getSmError(ErrorNameEnum.AxiosReq, codeTextMap[error.flag], error);
     }
     // axios 响应报错
     else {
-      error.code = (error.code as string) ?? 'ResError';
+      error.flag = ((error.response?.status || error.code) as FlagKeys) ?? CustomFlagEnum.AxiosRespError;
       const cancelReason = (config.axiosReqConfig.signal as AbortSignal).reason;
-      const msg = cancelReason ?? prsetCodeToText[(error?.response?.status as number) ?? error.code ?? 'UnKnown'];
+      const msg = cancelReason ?? codeTextMap[error.flag];
       // @ts-ignore
-      return getSmError(ErrorName.AxiosRes, msg, error);
+      return getSmError(ErrorNameEnum.AxiosRes, msg, error);
     }
   }
 
@@ -229,7 +228,7 @@ class StriveMoluAxios {
    * @function axios请求拦截器--请求发生错误
    */
   axiosRequestInterceptorsError(error: AxiosFlagError) {
-    error.flag = 'ReqError';
+    error.flag = CustomFlagEnum.AxiosReqError;
     return Promise.reject(error);
   }
 
@@ -244,7 +243,7 @@ class StriveMoluAxios {
    * @function axios响应拦截器--响应失败，状态码码在3xx及以上
    */
   axiosResponseInterceptorsError(error: AxiosFlagError) {
-    error.flag = 'ResError';
+    error.flag = CustomFlagEnum.AxiosRespError;
     return Promise.reject(error);
   }
 }
