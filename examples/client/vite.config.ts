@@ -17,7 +17,7 @@ export default defineConfig({
   ],
   server: {
     host: true, //启用本地局域网ip
-    open: false, //启动本地服务器打开浏览器
+    open: true, //启动本地服务器打开浏览器
     proxy: {
       '/api': {
         target: 'http://192.168.3.236:3000',

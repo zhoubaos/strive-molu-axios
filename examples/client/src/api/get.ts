@@ -3,7 +3,9 @@ import smAxios, { request } from '../http';
 // 重复请求
 export const getServer = () => {
   return request({
-    url: '/getApi'
+    url: '/getApi',
+    timeout: 10,
+    timeoutMessage: '超时'
     // repeatRequestStrategy: 2
   });
 };
@@ -12,7 +14,5 @@ export const getServerV2 = () => {
   return request({
     url: '/getapi'
     // repeatRequestStrategy: 2
-  }).catch((err) => {
-    console.log(222, err.flag, err.name, err.message, err.config);
   });
 };

@@ -23,7 +23,7 @@ export const codeTextMap: Record<FlagKeys, string> = {
   505: 'http版本不支持该请求',
   [CustomFlagEnum.BridgeSuccess]: '桥接成功',
   [CustomFlagEnum.UnKnown]: '未知错误',
-  [CustomFlagEnum.ECONNABORTED]: '请求时间超过TimeOut时间',
+  [CustomFlagEnum.ECONNABORTED]: '请求超时，请稍后再试',
   [CustomFlagEnum.ERRCANCELED]: '手动取消请求',
   [CustomFlagEnum.BridgeError]: '桥接失败',
   [CustomFlagEnum.AxiosReqError]: 'Axios请求报错',

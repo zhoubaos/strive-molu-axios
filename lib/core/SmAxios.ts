@@ -126,19 +126,23 @@ class StriveMoluAxios {
    */
   private _handleAxiosResError(error: AxiosFlagError, config: MergeRequestConfig) {
     config.getSourceError(deepClone(error));
+    // 桥架错误
     if (error.flag === CustomFlagEnum.BridgeError) {
       return getSmError(ErrorNameEnum.SmAxios, config.customBridgeErrorMsg(error) ?? codeTextMap[error.flag], error);
     }
-    // axios 请求报错
+    // axios 请求错误
     else if (error.flag === CustomFlagEnum.AxiosReqError) {
+      console.log('AxiosReqError', error);
       // @ts-ignore
       return getSmError(ErrorNameEnum.AxiosReq, codeTextMap[error.flag], error);
     }
-    // axios 响应报错
+    // axios 响应错误
     else {
       error.flag = ((error.response?.status || error.code) as FlagKeys) ?? CustomFlagEnum.AxiosRespError;
       const cancelReason = (config.axiosReqConfig.signal as AbortSignal).reason;
-      const msg = cancelReason ?? codeTextMap[error.flag];
+
+      const msg =
+        cancelReason ?? error.flag === CustomFlagEnum.ECONNABORTED ? config.timeoutMessage : codeTextMap[error.flag];
       // @ts-ignore
       return getSmError(ErrorNameEnum.AxiosRes, msg, error);
     }

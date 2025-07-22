@@ -12,7 +12,7 @@ export enum ErrorNameEnum {
 export enum CustomFlagEnum {
   BridgeSuccess = 'BridgeSuccess', // 桥接成功
   UnKnown = 'UnKnown', // 未知错误
-  ECONNABORTED = 'ECONNABORTED', // 请求时间超过TimeOut时间
+  ECONNABORTED = 'ECONNABORTED', // 请求超时
   ERRCANCELED = 'ERRCANCELED', // 手动取消请求
   BridgeError = 'BridgeError', // 接口请求成功，但不满足成功条件
   AxiosReqError = 'AxiosReqError', // Axios请求报错

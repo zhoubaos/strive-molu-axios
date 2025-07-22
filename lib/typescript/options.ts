@@ -35,6 +35,11 @@ export type Config<V = any> = {
    */
   timeout?: number;
   /**
+   * 接口超时提示语
+   * @default "请求超时，请稍后再试"
+   */
+  timeoutMessage?: string;
+  /**
    * 请求头`Content-Type`属性的值
    *
    * @default 'json'

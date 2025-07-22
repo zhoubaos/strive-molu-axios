@@ -1,7 +1,7 @@
 {
   "name": "strive-molu-axios",
   "packageManager": "pnpm@8.15.5",
-  "version": "0.0.3-beta.5",
+  "version": "0.0.3-beta.6",
   "description": "基于 axios 封装，具有接口防抖，失败重新请求等功能。",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
