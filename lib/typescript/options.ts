@@ -16,9 +16,20 @@ export type Config<V = any> = {
    */
   url?: string;
   /**
-   * 请求传参
+   * https://axios-http.com/zh/docs/req_config
+   * Axios.data 请求传参
    */
   data?: any;
+  /**
+   * https://axios-http.com/zh/docs/req_config
+   * Axios.params 请求参数
+   */
+  params?:
+    | URLSearchParams
+    | string
+    | Record<string, string | readonly string[]>
+    | Iterable<[string, string]>
+    | ReadonlyArray<[string, string]>;
   /**
    * 请求方法
    *
@@ -115,7 +126,7 @@ export type Config<V = any> = {
 /**
  * @desc 有默认值的请求属性配置
  */
-export type DefaultConfig = Omit<Config, 'url' | 'data'>;
+export type DefaultConfig = Omit<Config, 'url' | 'data' | 'params'>;
 /**
  * @desc url必传的配置
  */
@@ -124,6 +135,7 @@ export type UrlRequiredConfig = SetRequiredKey<Config, 'url'>;
 export type MergeRequestConfig = Required<Config> & {
   RepeatRequestStrategy: RepeatRequestStrategyCode;
   Axioskey: string;
+  completeUrl: string;
 };
 
 /**

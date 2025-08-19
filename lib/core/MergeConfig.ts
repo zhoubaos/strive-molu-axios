@@ -24,7 +24,6 @@ export function mergeConfig(source: Config, target: Config = {}) {
 
   // 归一化RepeatRequestStrategy的值
   Reflect.set(config, 'RepeatRequestStrategy', getRepeatReqStrategy(config.repeatRequestStrategy));
-
   function getRepeatReqStrategy(repeatRequestStrategy: Config['repeatRequestStrategy']) {
     let s = 0;
     if (repeatRequestStrategy === false) {
@@ -36,6 +35,11 @@ export function mergeConfig(source: Config, target: Config = {}) {
     }
     return s as RepeatRequestStrategyCode;
   }
+
+  // 搜索参数
+  const search = new URLSearchParams(config.params).toString();
+
+  Reflect.set(config, 'completeUrl', config.url + (search ? '?' + new URLSearchParams(config.params).toString() : ''));
 
   return config as MergeRequestConfig;
 }
@@ -49,14 +53,10 @@ export function getAxiosConfig(config: Config) {
     url: config.url ?? '',
     method: config.method,
     baseURL: config.baseURL,
-    timeout: config.timeout
+    timeout: config.timeout,
+    params: config.params,
+    data: config.data
   } as Required<AxiosRequestConfig>;
-  // 适配axios传参
-  if (AdaptAxiosDataMethods.includes(aConfig.method.toLowerCase())) {
-    aConfig.data = config.data;
-  } else {
-    aConfig.params = config.data;
-  }
 
   // 合并axios headers
   aConfig.headers = {

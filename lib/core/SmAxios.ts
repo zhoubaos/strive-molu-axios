@@ -100,13 +100,14 @@ class StriveMoluAxios {
     repeatRequestMap.push([
       () => _mConfig.repeatRequestStrategy === 3,
       () => {
-        if (this._debouncePool.isExistKey(_mConfig.url)) {
+        const url = _mConfig.completeUrl;
+        if (this._debouncePool.isExistKey(url)) {
+          console.log('防抖策略', _mConfig);
           // 取消正在发送的请求
-          const key = this._debouncePool.getKey(_mConfig.url);
+          const key = this._debouncePool.getKey(url);
           this._controllerPool.abort(key, '接口防抖');
-        } else {
-          this._debouncePool.setKey(_mConfig.url, _mConfig.Axioskey);
         }
+        this._debouncePool.setKey(url, _mConfig.Axioskey);
         return this._request(_mConfig);
       }
     ]);
@@ -164,7 +165,7 @@ class StriveMoluAxios {
           this._reqPool.remove(config.Axioskey);
         } else if (config.RepeatRequestStrategy === 3 && !config.axiosReqConfig.signal?.aborted) {
           // 防抖接口，最后一次接口删除pool中的key
-          this._debouncePool.removeKey(config.url);
+          this._debouncePool.removeKey(config.completeUrl);
         }
         this._controllerPool.remove(config.Axioskey);
       });

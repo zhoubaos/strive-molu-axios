@@ -5,7 +5,7 @@ export const getServer = (data: any) => {
   return request({
     url: '/getApi',
     repeatRequestStrategy: 3,
-    data
+    params: { type: 1 }
   });
 };
 // 重复请求1
