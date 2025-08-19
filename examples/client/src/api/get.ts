@@ -1,12 +1,11 @@
 import smAxios, { request } from '../http';
 
 // 重复请求
-export const getServer = () => {
+export const getServer = (data: any) => {
   return request({
     url: '/getApi',
-    timeout: 10,
-    timeoutMessage: '超时'
-    // repeatRequestStrategy: 2
+    repeatRequestStrategy: 3,
+    data
   });
 };
 // 重复请求1

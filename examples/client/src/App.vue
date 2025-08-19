@@ -33,9 +33,10 @@ const rules = reactive({
 });
 
 const onClick_submit = () => {
-  // getApi();
-  getApi();
-  getApiV2();
+  getApi(1);
+  setTimeout(() => {
+    getApi(2);
+  }, 500);
 };
 
 const onClick_submit1 = () => {
@@ -43,15 +44,27 @@ const onClick_submit1 = () => {
   getApiV2();
 };
 
-const onClick_cancel = () => {
-  request.cancelAllRequesting('没有原因');
+const onClick_cancel = async () => {
+  try {
+    await api();
+    console.log(2);
+  } catch (error) {
+    console.log(error);
+  }
+  // request.cancelAllRequesting('没有原因');
 };
 
-const getApi = async () => {
+const api = () => {
+  return new Promise((resolve, reject) => {});
+};
+const getApi = async (type: any) => {
   try {
-    let res = await getServer();
-    console.log(res);
+    let res = await getServer({
+      type
+    });
+    console.log('==v1==', res);
   } catch (error: any) {
+    console.dir(error);
     ElMessage.error(error.message);
   }
 };
@@ -59,7 +72,7 @@ const getApi = async () => {
 const getApiV2 = async () => {
   try {
     let res = await getServerV2();
-    console.log(res);
+    console.log('==v2==', res);
   } catch (error: any) {
     ElMessage.error(error.message);
   }

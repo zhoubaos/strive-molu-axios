@@ -2,7 +2,7 @@ import smAxios from 'strive-molu-axios';
 
 export const request = smAxios.create({
   baseURL: '/api',
-  timeout: 2,
+
   // contentType: 'formdata',
 
   headers: {

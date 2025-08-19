@@ -12,7 +12,8 @@ import { codeTextMap } from '../defaults/error.ts';
 import { getSmError, ErrorNameEnum, SmAxiosError } from './SmAxiosError.ts';
 import { deepClone } from '../utils/index.ts';
 import { getAxiosConfig, mergeConfig } from './MergeConfig.ts';
-import RequestPool from './RequestPool.ts';
+import { RequestPool } from './RequestPool.ts';
+import { DebouncePool } from './DebouncePool.ts';
 import { AbortControllerPool } from './AbortControllerPool.ts';
 import EventEmitter from './EventEmitter.ts';
 import { FlagKeys, CustomFlagEnum } from '../typescript/error.ts';
@@ -23,9 +24,13 @@ import { FlagKeys, CustomFlagEnum } from '../typescript/error.ts';
 class StriveMoluAxios {
   private _default: Required<DefaultConfig>;
   /**
-   * 用于记录真在请求的接口
+   * 用于处理重复请求
    */
   private _reqPool;
+  /**
+   * 处理防抖请求的缓存池
+   */
+  private _debouncePool;
   /**
    * 处理重复请求的发布订阅器
    */
@@ -41,6 +46,7 @@ class StriveMoluAxios {
   constructor(config: Required<DefaultConfig>) {
     this._default = config;
     this._reqPool = new RequestPool();
+    this._debouncePool = new DebouncePool();
     this._evEmitter = new EventEmitter();
     this._controllerPool = new AbortControllerPool();
     this._axiosInstance = axios.create(getAxiosConfig(this._default));
@@ -57,23 +63,61 @@ class StriveMoluAxios {
     // 设置唯一key
     Reflect.set(_mConfig, 'Axioskey', RequestPool.getConfigKey(config));
 
-    if (_mConfig.RepeatRequestStrategy == 0) return this._request(_mConfig);
-    else {
-      if (this._reqPool.isExistKey(_mConfig.Axioskey)) {
-        // 重复的接口直接返回
-        if (_mConfig.RepeatRequestStrategy === 1) {
+    const repeatRequestMap = [];
+
+    // 策略模式——0: 允许重复的请求
+    repeatRequestMap.push([() => _mConfig.repeatRequestStrategy === 0, () => this._request(_mConfig)]);
+
+    // 策略模式——1: 取消重复的请求，会抛出错误
+    repeatRequestMap.push([
+      () => _mConfig.repeatRequestStrategy === 1,
+      () => {
+        if (this._reqPool.isExistKey(_mConfig.Axioskey)) {
           return Promise.reject(getSmError('接口重复请求', { flag: CustomFlagEnum.RepeatReq }));
         } else {
-          // 重复的接口通过发布-订阅模式返回数据
+          this._reqPool.add(_mConfig.Axioskey);
+          return this._request(_mConfig);
+        }
+      }
+    ]);
+
+    // 策略模式——2：取消重复请求，重复的请求会返回第一次请求的数据。
+    repeatRequestMap.push([
+      () => _mConfig.repeatRequestStrategy === 2,
+      () => {
+        if (this._reqPool.isExistKey(_mConfig.Axioskey)) {
           return new Promise((resolve, reject) => {
             this._evEmitter.on(_mConfig.Axioskey, resolve, reject);
           });
+        } else {
+          this._reqPool.add(_mConfig.Axioskey);
+          return this._request(_mConfig);
         }
-      } else {
-        this._reqPool.add(_mConfig.Axioskey);
+      }
+    ]);
+
+    // 策略模式——3：接口防抖，会返回最后一次接口的数据
+    repeatRequestMap.push([
+      () => _mConfig.repeatRequestStrategy === 3,
+      () => {
+        if (this._debouncePool.isExistKey(_mConfig.url)) {
+          // 取消正在发送的请求
+          const key = this._debouncePool.getKey(_mConfig.url);
+          this._controllerPool.abort(key, '接口防抖');
+        } else {
+          this._debouncePool.setKey(_mConfig.url, _mConfig.Axioskey);
+        }
         return this._request(_mConfig);
       }
+    ]);
+
+    for (const rule of repeatRequestMap) {
+      if (rule[0]()) {
+        return rule[1]();
+      }
     }
+
+    return this._request(_mConfig);
   }
 
   private _request(config: MergeRequestConfig): any {
@@ -104,7 +148,8 @@ class StriveMoluAxios {
         }
       })
       .catch<SmAxiosError>((error: any) => {
-        if (config.retryTimes >= 0) {
+        // 重试
+        if (config.retryTimes >= 0 && !config.axiosReqConfig.signal?.aborted) {
           return this._request(config);
         } else {
           const e = this._handleAxiosResError(error, config);
@@ -115,7 +160,12 @@ class StriveMoluAxios {
         }
       })
       .finally(() => {
-        config.RepeatRequestStrategy != 0 && this._reqPool.remove(config.Axioskey);
+        if (config.RepeatRequestStrategy === 1 || config.RepeatRequestStrategy === 2) {
+          this._reqPool.remove(config.Axioskey);
+        } else if (config.RepeatRequestStrategy === 3 && !config.axiosReqConfig.signal?.aborted) {
+          // 防抖接口，最后一次接口删除pool中的key
+          this._debouncePool.removeKey(config.url);
+        }
         this._controllerPool.remove(config.Axioskey);
       });
   }
@@ -142,7 +192,8 @@ class StriveMoluAxios {
       const cancelReason = (config.axiosReqConfig.signal as AbortSignal).reason;
 
       const msg =
-        cancelReason ?? error.flag === CustomFlagEnum.ECONNABORTED ? config.timeoutMessage : codeTextMap[error.flag];
+        cancelReason ?? (error.flag === CustomFlagEnum.ECONNABORTED ? config.timeoutMessage : codeTextMap[error.flag]);
+
       // @ts-ignore
       return getSmError(ErrorNameEnum.AxiosRes, msg, error);
     }

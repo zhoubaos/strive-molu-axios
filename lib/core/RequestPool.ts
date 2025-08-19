@@ -4,41 +4,43 @@ import { Md5 } from 'ts-md5';
 
 /**
  * @desc 请求池
+ * 处理repeatRequestStrategy 为 1 | 2 的逻辑
  */
-class RequestPool {
+export class RequestPool {
   /**
-   * api 请求池
+   * api 请求池，保存每次请求参数删生成的唯一key
    */
-  pool: Set<string>;
+  _pool: Set<string>;
+
   /**
    * 已完成请求的api，延迟退出请求池的时间
    */
   delayTime: number;
 
   constructor(delay = 200) {
-    this.pool = new Set();
+    this._pool = new Set();
     this.delayTime = delay;
   }
 
   /**
-   * @desc 添加接口
+   * @desc 添加唯一key
    * @param config
    */
   add(c: AxiosRequestConfig | string) {
     const key = Typings.isString(c) ? c : RequestPool.getConfigKey(c);
-    if (!this.pool.has(key)) {
-      this.pool.add(key);
+    if (!this._pool.has(key)) {
+      this._pool.add(key);
     }
   }
 
   /**
-   * @desc 移除接口
+   * @desc 移除唯一key
    * @param config
    */
   remove(c: AxiosRequestConfig | string) {
     const key = Typings.isString(c) ? c : RequestPool.getConfigKey(c);
     setTimeout(() => {
-      this.pool.delete(key);
+      this._pool.delete(key);
     }, this.delayTime);
   }
 
@@ -47,7 +49,7 @@ class RequestPool {
    */
   removeAll() {
     setTimeout(() => {
-      this.pool.clear();
+      this._pool.clear();
     }, this.delayTime);
   }
 
@@ -66,7 +68,7 @@ class RequestPool {
    * @returns
    */
   isExistKey(key: string) {
-    return this.pool.has(key);
+    return this._pool.has(key);
   }
 
   /**
@@ -100,5 +102,3 @@ class RequestPool {
     return str;
   }
 }
-
-export default RequestPool;

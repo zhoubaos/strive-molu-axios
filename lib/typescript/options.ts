@@ -4,6 +4,9 @@ import StriveMoluAxios from '../core/SmAxios.ts';
 import { FlagKeys } from './error.ts';
 export type { AxiosRequestConfig };
 
+// 重复请求策略Code
+export type RepeatRequestStrategyCode = 0 | 1 | 2 | 3;
+
 /**
  * @desc 请求属性配置
  */
@@ -66,10 +69,11 @@ export type Config<V = any> = {
    *
    * * false 允许重复的请求
    * * 1 | true 取消重复的请求，直接抛出重复请求的错误。
-   * * 2 取消重复的请求，不会抛出错误，会返回接口数据。
+   * * 2 取消重复的请求，不会抛出错误，会返回第一次接口的数据。
+   * * 3 接口防抖，高频触发的接口，会返回最后一次接口的数据。
    * @default true
    */
-  repeatRequestStrategy?: boolean | 1 | 2;
+  repeatRequestStrategy?: boolean | RepeatRequestStrategyCode;
   /**
    * 用于判断接口是否成功的函数
    *
@@ -118,7 +122,7 @@ export type DefaultConfig = Omit<Config, 'url' | 'data'>;
 export type UrlRequiredConfig = SetRequiredKey<Config, 'url'>;
 
 export type MergeRequestConfig = Required<Config> & {
-  RepeatRequestStrategy: 0 | 1 | 2;
+  RepeatRequestStrategy: RepeatRequestStrategyCode;
   Axioskey: string;
 };
 

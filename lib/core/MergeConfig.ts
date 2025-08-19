@@ -1,7 +1,9 @@
-import type { Config, DefaultConfig, AxiosRequestConfig, MergeRequestConfig } from '../typescript/options.ts';
-import { Typings } from '../utils/index.ts';
-import RequestPool from './RequestPool.ts';
-import defConfig from '../defaults/config.ts';
+import type {
+  Config,
+  AxiosRequestConfig,
+  MergeRequestConfig,
+  RepeatRequestStrategyCode
+} from '../typescript/options.ts';
 import { defu } from 'defu';
 
 // 适配 axios data 属性的请求方法
@@ -18,6 +20,11 @@ const contentTypeReflect = {
  * 合并配置
  */
 export function mergeConfig(source: Config, target: Config = {}) {
+  const config = defu(target, source);
+
+  // 归一化RepeatRequestStrategy的值
+  Reflect.set(config, 'RepeatRequestStrategy', getRepeatReqStrategy(config.repeatRequestStrategy));
+
   function getRepeatReqStrategy(repeatRequestStrategy: Config['repeatRequestStrategy']) {
     let s = 0;
     if (repeatRequestStrategy === false) {
@@ -25,15 +32,10 @@ export function mergeConfig(source: Config, target: Config = {}) {
     } else if (repeatRequestStrategy === true || repeatRequestStrategy === 1) {
       s = 1;
     } else {
-      s = 2;
+      s = repeatRequestStrategy as number;
     }
-    return s;
+    return s as RepeatRequestStrategyCode;
   }
-
-  const config = defu(target, source);
-
-  // 归一化RepeatRequestStrategy的值
-  Reflect.set(config, 'RepeatRequestStrategy', getRepeatReqStrategy(config.repeatRequestStrategy));
 
   return config as MergeRequestConfig;
 }
