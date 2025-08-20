@@ -9,7 +9,7 @@ const defConfig: Required<DefaultConfig> = {
   timeoutMessage: codeTextMap[CustomFlagEnum.ECONNABORTED],
   contentType: 'json',
   retryTimes: 0,
-  repeatRequestStrategy: true,
+  repeatRequestStrategy: 2,
   headers: {},
   axiosReqConfig: {},
   customBridgeSuccess(res: any): boolean {

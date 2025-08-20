@@ -7,6 +7,13 @@ export type { AxiosRequestConfig };
 // 重复请求策略Code
 export type RepeatRequestStrategyCode = 0 | 1 | 2 | 3;
 
+export type Params =
+  | URLSearchParams
+  | string
+  | Record<string, string | readonly string[]>
+  | Iterable<[string, string]>
+  | ReadonlyArray<[string, string]>;
+
 /**
  * @desc 请求属性配置
  */
@@ -24,12 +31,7 @@ export type Config<V = any> = {
    * https://axios-http.com/zh/docs/req_config
    * Axios.params 请求参数
    */
-  params?:
-    | URLSearchParams
-    | string
-    | Record<string, string | readonly string[]>
-    | Iterable<[string, string]>
-    | ReadonlyArray<[string, string]>;
+  params?: any;
   /**
    * 请求方法
    *
@@ -45,7 +47,7 @@ export type Config<V = any> = {
   /**
    * 接口超时时间，单位ms
    *
-   * @default 1000
+   * @default 10000
    */
   timeout?: number;
   /**
@@ -82,7 +84,7 @@ export type Config<V = any> = {
    * * 1 | true 取消重复的请求，直接抛出重复请求的错误。
    * * 2 取消重复的请求，不会抛出错误，会返回第一次接口的数据。
    * * 3 接口防抖，高频触发的接口，会返回最后一次接口的数据。
-   * @default true
+   * @default 2
    */
   repeatRequestStrategy?: boolean | RepeatRequestStrategyCode;
   /**
@@ -135,6 +137,7 @@ export type UrlRequiredConfig = SetRequiredKey<Config, 'url'>;
 export type MergeRequestConfig = Required<Config> & {
   RepeatRequestStrategy: RepeatRequestStrategyCode;
   Axioskey: string;
+  UniqueKey: string;
   completeUrl: string;
 };
 

@@ -10,8 +10,8 @@ import type {
 } from '../typescript/options.ts';
 import { codeTextMap } from '../defaults/error.ts';
 import { getSmError, ErrorNameEnum, SmAxiosError } from './SmAxiosError.ts';
-import { deepClone } from '../utils/index.ts';
-import { getAxiosConfig, mergeConfig } from './MergeConfig.ts';
+import { deepClone, randomString } from '../utils/index.ts';
+import { extendMergeConfig, getAxiosConfig, mergeConfig } from './MergeConfig.ts';
 import { RequestPool } from './RequestPool.ts';
 import { DebouncePool } from './DebouncePool.ts';
 import { AbortControllerPool } from './AbortControllerPool.ts';
@@ -58,11 +58,7 @@ class StriveMoluAxios {
    * @param config
    */
   async request<T = any>(config: UrlRequiredConfig): Promise<T> {
-    const _mConfig = mergeConfig(this._default, config);
-
-    // 设置唯一key
-    Reflect.set(_mConfig, 'Axioskey', RequestPool.getConfigKey(config));
-
+    const _mConfig = extendMergeConfig(mergeConfig(this._default, config));
     const repeatRequestMap = [];
 
     // 策略模式——0: 允许重复的请求
@@ -102,12 +98,11 @@ class StriveMoluAxios {
       () => {
         const url = _mConfig.completeUrl;
         if (this._debouncePool.isExistKey(url)) {
-          console.log('防抖策略', _mConfig);
           // 取消正在发送的请求
-          const key = this._debouncePool.getKey(url);
-          this._controllerPool.abort(key, '接口防抖');
+          const axiosKey = this._debouncePool.getKey(url);
+          this._controllerPool.abort(axiosKey, '接口防抖');
         }
-        this._debouncePool.setKey(url, _mConfig.Axioskey);
+        this._debouncePool.setKey(url, _mConfig.UniqueKey);
         return this._request(_mConfig);
       }
     ]);
@@ -131,7 +126,7 @@ class StriveMoluAxios {
         signal: contr.signal
       }
     });
-    this._controllerPool.add(config.Axioskey, contr);
+    this._controllerPool.add(config.UniqueKey, contr);
 
     return (this._axiosInstance as AxiosInstance)
       .request(getAxiosConfig(config))
@@ -167,7 +162,7 @@ class StriveMoluAxios {
           // 防抖接口，最后一次接口删除pool中的key
           this._debouncePool.removeKey(config.completeUrl);
         }
-        this._controllerPool.remove(config.Axioskey);
+        this._controllerPool.remove(config.UniqueKey);
       });
   }
 

@@ -33,10 +33,10 @@ const rules = reactive({
 });
 
 const onClick_submit = () => {
-  getApi(1);
-  getApi(2);
-  // setTimeout(() => {
-  // }, 500);
+  getApi();
+  setTimeout(() => {
+    getApi();
+  }, 10);
 };
 
 const onClick_submit1 = () => {
@@ -45,19 +45,13 @@ const onClick_submit1 = () => {
 };
 
 const onClick_cancel = async () => {
-  try {
-    await api();
-    console.log(2);
-  } catch (error) {
-    console.log(error);
-  }
-  // request.cancelAllRequesting('没有原因');
+  request.cancelAllRequesting('全部取消');
 };
 
 const api = () => {
   return new Promise((resolve, reject) => {});
 };
-const getApi = async (type: any) => {
+const getApi = async (type?: any) => {
   try {
     let res = await getServer({
       type

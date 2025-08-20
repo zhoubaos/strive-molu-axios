@@ -4,3 +4,4 @@ export * from './bind.ts';
 export * from './extend.ts';
 export * from './forEach.ts';
 export * from './deepClone.ts';
+export * from './random.ts';

@@ -5,6 +5,8 @@ import type {
   RepeatRequestStrategyCode
 } from '../typescript/options.ts';
 import { defu } from 'defu';
+import { RequestPool } from './RequestPool.ts';
+import { randomString } from '../utils/random.ts';
 
 // 适配 axios data 属性的请求方法
 const AdaptAxiosDataMethods = ['post', 'put', 'delete', 'patch'];
@@ -19,8 +21,25 @@ const contentTypeReflect = {
 /**
  * 合并配置
  */
-export function mergeConfig(source: Config, target: Config = {}) {
+export function mergeConfig<T extends Config>(source: T, target: Partial<Config> = {}) {
   const config = defu(target, source);
+
+  return config;
+}
+
+/**
+ * 扩展config
+ * @param config
+ * @returns
+ */
+export function extendMergeConfig(config: Config): MergeRequestConfig {
+  // 设置唯一key
+  Reflect.set(config, 'Axioskey', RequestPool.getConfigKey(config));
+  Reflect.set(config, 'UniqueKey', randomString());
+
+  // 搜索参数
+  const search = new URLSearchParams(config.params).toString();
+  Reflect.set(config, 'completeUrl', config.url + (search ? '?' + new URLSearchParams(config.params).toString() : ''));
 
   // 归一化RepeatRequestStrategy的值
   Reflect.set(config, 'RepeatRequestStrategy', getRepeatReqStrategy(config.repeatRequestStrategy));
@@ -35,11 +54,6 @@ export function mergeConfig(source: Config, target: Config = {}) {
     }
     return s as RepeatRequestStrategyCode;
   }
-
-  // 搜索参数
-  const search = new URLSearchParams(config.params).toString();
-
-  Reflect.set(config, 'completeUrl', config.url + (search ? '?' + new URLSearchParams(config.params).toString() : ''));
 
   return config as MergeRequestConfig;
 }
