@@ -10,7 +10,7 @@ import type {
 } from '../typescript/options.ts';
 import { codeTextMap } from '../defaults/error.ts';
 import { getSmError, ErrorNameEnum, SmAxiosError } from './SmAxiosError.ts';
-import { deepClone, randomString } from '../utils/index.ts';
+import { deepClone } from '../utils/index.ts';
 import { extendMergeConfig, getAxiosConfig, mergeConfig } from './MergeConfig.ts';
 import { RequestPool } from './RequestPool.ts';
 import { DebouncePool } from './DebouncePool.ts';
