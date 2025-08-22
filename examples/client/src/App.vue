@@ -11,6 +11,7 @@
         <el-button type="primary" @click="onClick_submit">get提交</el-button>
         <el-button type="primary" @click="onClick_submit1">get提交V2</el-button>
         <el-button @click="onClick_cancel">取消请求</el-button>
+        <el-button @click="onClick_gener">生成文件</el-button>
       </el-form-item>
     </el-form>
   </div>
@@ -46,6 +47,12 @@ const onClick_submit1 = () => {
 
 const onClick_cancel = async () => {
   request.cancelAllRequesting('全部取消');
+};
+
+const onClick_gener = () => {
+  let f = new File(['123'], 'test.txt', {
+    type: 'text/plain'
+  });
 };
 
 const api = () => {
