@@ -7,6 +7,7 @@ import type {
 import { defu } from 'defu';
 import { RequestPool } from './RequestPool.ts';
 import { randomString } from '../utils/random.ts';
+import { gzip } from 'pako';
 
 // 适配 axios data 属性的请求方法
 const AdaptAxiosDataMethods = ['post', 'put', 'delete', 'patch'];
@@ -76,8 +77,17 @@ export function getAxiosConfig(config: Config) {
   aConfig.headers = {
     ...(aConfig?.headers ?? {}),
     ...config.headers,
-    ...(contentTypeReflect[config.contentType ?? 'json'] ?? {})
+    ...(contentTypeReflect[config.contentType ?? 'json'] ?? {}),
+    ...(config.compress ? { 'Content-Encoding': 'gzip' } : {})
   };
+
+  // 处理请求body参数进行gzip压缩
+  if (Object.keys(config.data ?? {}).length > 0 && config.compress) {
+    const compressed = gzip(JSON.stringify(config.data));
+    const b = new Blob([compressed], { type: 'application/gzip' });
+    Reflect.set(aConfig, 'data', b);
+    Reflect.set(aConfig, 'headers', { ...aConfig.headers });
+  }
 
   return aConfig;
 }

@@ -87,6 +87,12 @@ export type Config<V = any> = {
    * @default 2
    */
   repeatRequestStrategy?: boolean | RepeatRequestStrategyCode;
+
+  /**
+   * 请求参数是否进行gzip压缩
+   * @default false
+   */
+  compress?: boolean;
   /**
    * 用于判断接口是否成功的函数
    *

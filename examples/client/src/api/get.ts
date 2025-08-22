@@ -4,7 +4,10 @@ import smAxios, { request } from '../http';
 export const getServer = (data: any) => {
   return request({
     url: '/getApi',
-    repeatRequestStrategy: 2
+    repeatRequestStrategy: 2,
+    data,
+    method: 'post',
+    compress: true
   });
 };
 // 重复请求1

@@ -10,6 +10,7 @@ const defConfig: Required<DefaultConfig> = {
   contentType: 'json',
   retryTimes: 0,
   repeatRequestStrategy: 2,
+  compress: false,
   headers: {},
   axiosReqConfig: {},
   customBridgeSuccess(res: any): boolean {

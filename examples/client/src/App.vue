@@ -33,10 +33,10 @@ const rules = reactive({
 });
 
 const onClick_submit = () => {
-  getApi();
-  setTimeout(() => {
-    getApi();
-  }, 10);
+  let data = {
+    list: Array(1000).fill({ id: 1, name: 'test', content: '重复的长文本内容...' })
+  };
+  getApi(data);
 };
 
 const onClick_submit1 = () => {
@@ -51,11 +51,9 @@ const onClick_cancel = async () => {
 const api = () => {
   return new Promise((resolve, reject) => {});
 };
-const getApi = async (type?: any) => {
+const getApi = async (data: any) => {
   try {
-    let res = await getServer({
-      type
-    });
+    let res = await getServer(data);
     console.log('==v1==', res);
   } catch (error: any) {
     console.error(error);
