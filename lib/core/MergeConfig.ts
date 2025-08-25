@@ -86,7 +86,7 @@ export function getAxiosConfig(config: Config) {
     const compressed = gzip(JSON.stringify(config.data));
     const b = new Blob([compressed], { type: 'application/gzip' });
     Reflect.set(aConfig, 'data', b);
-    Reflect.set(aConfig, 'headers', { ...aConfig.headers, 'Content-Type': 'application/octet-stream' });
+    Reflect.set(aConfig, 'headers', { ...aConfig.headers, 'Content-Type': 'application/gzip' });
   }
 
   return aConfig;
