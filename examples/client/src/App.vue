@@ -55,9 +55,6 @@ const onClick_gener = () => {
   });
 };
 
-const api = () => {
-  return new Promise((resolve, reject) => {});
-};
 const getApi = async (data: any) => {
   try {
     let res = await getServer(data);

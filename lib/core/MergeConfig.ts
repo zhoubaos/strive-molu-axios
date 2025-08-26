@@ -73,21 +73,24 @@ export function getAxiosConfig(config: Config) {
     data: config.data
   } as Required<AxiosRequestConfig>;
 
-  // 合并axios headers
-  aConfig.headers = {
-    ...(aConfig?.headers ?? {}),
-    ...config.headers,
-    ...(contentTypeReflect[config.contentType ?? 'json'] ?? {}),
-    ...(config.compress ? { 'Content-Encoding': 'gzip' } : {})
-  };
+  const headers: Record<string, string> = {};
 
   // 处理请求body参数进行gzip压缩
   if (Object.keys(config.data ?? {}).length > 0 && config.compress) {
     const compressed = gzip(JSON.stringify(config.data));
     const b = new Blob([compressed], { type: 'application/gzip' });
     Reflect.set(aConfig, 'data', b);
-    Reflect.set(aConfig, 'headers', { ...aConfig.headers, 'Content-Type': 'application/gzip' });
+    Reflect.set(headers, 'Content-Type', 'application/gzip');
+    Reflect.set(headers, 'Content-Encoding', 'gzip');
   }
+
+  // 合并axios headers
+  aConfig.headers = {
+    ...(contentTypeReflect[config.contentType ?? 'json'] ?? {}),
+    ...headers,
+    ...(config.axiosReqConfig?.headers ?? {}),
+    ...config.headers
+  };
 
   return aConfig;
 }
