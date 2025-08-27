@@ -14,7 +14,6 @@
         <el-button type="primary" @click="onClick_submit">get提交</el-button>
         <el-button type="primary" @click="onClick_submit1">get提交V2</el-button>
         <el-button @click="onClick_cancel">取消请求</el-button>
-        <el-button @click="onClick_upload">上传文件</el-button>
       </el-form-item>
     </el-form>
     <el-divider />
@@ -41,16 +40,11 @@ const rules = reactive({
 
 const onClick_submit = () => {
   let data = {
-    list: Array(1000).fill({ id: 1, name: 'test', content: '重复的长文本内容...' })
+    list: { id: 1, name: 'test', content: '重复的长文本内容...' }
   };
   getApi(data);
 };
-onMounted(() => {
-  document.querySelector('#file')?.addEventListener('change', (e) => {
-    let file = e?.target?.files[0] as File;
-    console.log(file);
-  });
-});
+
 const onClick_submit1 = () => {
   getApiV2();
   getApiV2();
@@ -59,8 +53,6 @@ const onClick_submit1 = () => {
 const onClick_cancel = async () => {
   request.cancelAllRequesting('全部取消');
 };
-
-const onClick_upload = () => {};
 
 const getApi = async (data: any) => {
   try {

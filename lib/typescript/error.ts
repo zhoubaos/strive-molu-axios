@@ -17,10 +17,13 @@ export enum CustomFlagEnum {
   BridgeError = 'BridgeError', // 接口请求成功，但不满足成功条件
   AxiosReqError = 'AxiosReqError', // Axios请求报错
   AxiosRespError = 'AxiosRespError', // Axios响应报错
-  RepeatReq = 'RepeatReq' // 重复请求
+  RepeatReq = 'RepeatReq', // 重复请求
+  ERR_CANCELED = 'ERR_CANCELED' // 手动取消请求
 }
 
 export type FlagKeys = (typeof httpCodes)[number] | CustomFlagEnum;
+
+export type CodeMessageMap = Partial<Record<FlagKeys, string>>;
 
 export type ErrorConfig<T = any> = {
   /**

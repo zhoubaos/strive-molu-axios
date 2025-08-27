@@ -7,8 +7,8 @@ import type {
   AxiosFlagError,
   MergeRequestConfig,
   AxiosFlagResponse
-} from '../typescript/options.ts';
-import { codeTextMap } from '../defaults/error.ts';
+} from '../typescript/config.ts';
+import { codeMessageMap } from '../defaults/error.ts';
 import { getSmError, ErrorNameEnum, SmAxiosError } from './SmAxiosError.ts';
 import { deepClone } from '../utils/index.ts';
 import { extendMergeConfig, getAxiosConfig, mergeConfig } from './MergeConfig.ts';
@@ -171,28 +171,38 @@ class StriveMoluAxios {
    * @param error
    */
   private _handleAxiosResError(error: AxiosFlagError, config: MergeRequestConfig) {
+    console.log(error, config);
+
     config.getSourceError(deepClone(error));
     // 桥架错误
     if (error.flag === CustomFlagEnum.BridgeError) {
-      return getSmError(ErrorNameEnum.SmAxios, config.customBridgeErrorMsg(error) ?? codeTextMap[error.flag], error);
+      return getSmError(
+        ErrorNameEnum.SmAxios,
+        config.customBridgeErrorMsg(error) ?? this._getCodeMessage(error.flag, config),
+        error
+      );
     }
     // axios 请求错误
     else if (error.flag === CustomFlagEnum.AxiosReqError) {
-      console.log('AxiosReqError', error);
       // @ts-ignore
-      return getSmError(ErrorNameEnum.AxiosReq, codeTextMap[error.flag], error);
+      return getSmError(ErrorNameEnum.AxiosReq, this._getCodeMessage(error.flag, config), error);
     }
     // axios 响应错误
     else {
       error.flag = ((error.response?.status || error.code) as FlagKeys) ?? CustomFlagEnum.AxiosRespError;
       const cancelReason = (config.axiosReqConfig.signal as AbortSignal).reason;
 
-      const msg =
-        cancelReason ?? (error.flag === CustomFlagEnum.ECONNABORTED ? config.timeoutMessage : codeTextMap[error.flag]);
+      const msg = cancelReason ?? this._getCodeMessage(error.flag, config);
 
       // @ts-ignore
       return getSmError(ErrorNameEnum.AxiosRes, msg, error);
     }
+  }
+  /**
+   * @desc 获取message
+   */
+  private _getCodeMessage(flag: FlagKeys, config: MergeRequestConfig) {
+    return config.codeMessageMap?.[flag] ?? codeMessageMap[flag];
   }
 
   /**

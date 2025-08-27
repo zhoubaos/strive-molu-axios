@@ -1,6 +1,6 @@
 import { mergeConfig } from './core/MergeConfig.ts';
 import StriveMoluAxios from './core/SmAxios.ts';
-import type { SmAxios, CreateInstance } from './typescript/options.ts';
+import type { SmAxios, CreateInstance } from './typescript/config.ts';
 import defConfig from './defaults/config.ts';
 import { bind, extend } from './utils/index.ts';
 

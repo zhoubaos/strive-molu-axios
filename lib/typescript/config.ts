@@ -1,7 +1,7 @@
 import type { AxiosRequestConfig, AxiosError, Method, Axios, AxiosResponse } from 'axios';
 import type { SetRequiredKey } from './utils.ts';
 import StriveMoluAxios from '../core/SmAxios.ts';
-import { FlagKeys } from './error.ts';
+import { CodeMessageMap, FlagKeys } from './error.ts';
 export type { AxiosRequestConfig };
 
 // 重复请求策略Code
@@ -51,11 +51,6 @@ export type Config<V = any> = {
    */
   timeout?: number;
   /**
-   * 接口超时提示语
-   * @default "请求超时，请稍后再试"
-   */
-  timeoutMessage?: string;
-  /**
    * 请求头`Content-Type`属性的值
    *
    * @default 'json'
@@ -88,6 +83,10 @@ export type Config<V = any> = {
    */
   repeatRequestStrategy?: boolean | RepeatRequestStrategyCode;
 
+  /**
+   * code message
+   */
+  codeMessageMap?: CodeMessageMap;
   /**
    * 请求参数是否进行gzip压缩
    * @default false

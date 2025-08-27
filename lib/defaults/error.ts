@@ -1,4 +1,4 @@
-import { FlagKeys, CustomFlagEnum } from '../typescript/error.ts';
+import { CustomFlagEnum, CodeMessageMap } from '../typescript/error.ts';
 
 /**
  * @desc 错误状态码
@@ -8,7 +8,7 @@ export const httpCodes = [400, 401, 403, 404, 405, 429, 500, 501, 502, 503, 504,
 /**
  * @desc 状态码对应的预设文本
  */
-export const codeTextMap: Record<FlagKeys, string> = {
+export const codeMessageMap: CodeMessageMap = {
   400: '错误的请求',
   401: '未授权，请重新登录',
   403: '服务器拒绝访问',
@@ -17,7 +17,7 @@ export const codeTextMap: Record<FlagKeys, string> = {
   429: '请求频率过高',
   500: '服务器端报错',
   501: '服务器不支持请求',
-  502: '网络错误',
+  502: '服务器无响应',
   503: '服务器过载',
   504: '网络超时',
   505: 'http版本不支持该请求',

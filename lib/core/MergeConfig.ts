@@ -3,7 +3,7 @@ import type {
   AxiosRequestConfig,
   MergeRequestConfig,
   RepeatRequestStrategyCode
-} from '../typescript/options.ts';
+} from '../typescript/config.ts';
 import { defu } from 'defu';
 import { RequestPool } from './RequestPool.ts';
 import { randomString } from '../utils/random.ts';

@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from '../typescript/options.ts';
+import type { AxiosRequestConfig } from '../typescript/config.ts';
 import { Typings } from '../utils/typings.ts';
 import { Md5 } from 'ts-md5';
 

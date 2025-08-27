@@ -6,8 +6,11 @@ export const getServer = (data: any) => {
     url: '/getApi',
     repeatRequestStrategy: 2,
     data,
+    timeout: 1000,
     method: 'post',
-    compress: true
+    codeMessageMap: {
+      ECONNABORTED: '请求超时'
+    }
   });
 };
 // 重复请求1
