@@ -17,7 +17,7 @@ export type Params =
 /**
  * @desc 请求属性配置
  */
-export type Config<V = any> = {
+export type Config = {
   /**
    * 请求地址
    */
@@ -88,7 +88,9 @@ export type Config<V = any> = {
    */
   codeMessageMap?: CodeMessageMap;
   /**
-   * 请求参数是否进行gzip压缩
+   * 请求data参数是否进行gzip压缩
+   * 默认添加请求头字段
+   * Content-Type:application/gzip;Content-Encoding:gzip
    * @default false
    */
   compress?: boolean;
