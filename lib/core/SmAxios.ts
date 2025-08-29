@@ -18,6 +18,8 @@ import { RequestPool } from './RequestPool.ts';
 import { DebouncePool } from './DebouncePool.ts';
 import { AbortControllerPool } from './AbortControllerPool.ts';
 import EventEmitter from './EventEmitter.ts';
+import { cutFile } from './upload/cutFile.ts';
+import { createMD5 } from 'hash-wasm';
 
 /**
  * @desc 基于axios的请求库
@@ -123,9 +125,22 @@ class StriveMoluAxios {
    * @param config
    */
   async uploadFile<T = any>(config: UrlRequiredConfig) {
+    if (!config.file) {
+      throw getSmError('请传入文件', { flag: CustomFlagEnum.NO_FILE });
+    }
+    console.time('cutfile');
     // 合并参数
     const _mConfig = extendMergeConfig(mergeConfig(this._default, config), true);
-    console.log(_mConfig);
+
+    const { file, chunkSize, threadCount } = _mConfig;
+
+    // 获取文件所有分片信息
+    const chunks = await cutFile(file, chunkSize, threadCount).catch((error) => {
+      throw getSmError(error.message, { flag: CustomFlagEnum.FILE_CHUNK_ERROR });
+    });
+    console.log(chunks);
+
+    console.timeEnd('cutfile');
   }
 
   /**

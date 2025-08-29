@@ -5,7 +5,10 @@ import { defineConfig } from 'tsup';
  */
 export default defineConfig((options) => {
   return {
-    entry: ['lib/index.ts'], //入口文件
+    entry: {
+      index: 'lib/index.ts',
+      worker: 'lib/core/upload/worker.ts'
+    }, //入口文件
     splitting: true, //代码分割
     cjsInterop: true,
     shims: true,

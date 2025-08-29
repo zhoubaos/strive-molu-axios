@@ -25,7 +25,7 @@
 import { getServer, getServerV2 } from './api/get';
 import { reactive, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import { request } from './http';
+import { request } from './api/http';
 import Upload from '@/Upload.vue';
 
 const form = reactive({

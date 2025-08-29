@@ -11,6 +11,8 @@ const defConfig: Required<DefaultConfig> = {
   headers: {},
   codeMessageMap: {},
   axiosReqConfig: {},
+  chunkSize: 1048576,
+  threadCount: navigator.hardwareConcurrency ? navigator.hardwareConcurrency - 4 : 4,
   customBridgeSuccess(res: any): boolean {
     return res?.data?.info == 'Success' && res?.data?.status == 1;
   },

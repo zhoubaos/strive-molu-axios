@@ -1,7 +1,7 @@
-import type { AxiosRequestConfig, AxiosError, Method, Axios, AxiosResponse } from 'axios';
+import type { AxiosRequestConfig, Method, Axios } from 'axios';
 import type { SetRequiredKey } from './utils.ts';
 import StriveMoluAxios from '../core/SmAxios.ts';
-import { CodeMessageMap, FlagKeys } from './error.ts';
+import { CodeMessageMap } from './error.ts';
 export type { AxiosRequestConfig };
 
 // 重复请求策略Code
@@ -82,7 +82,6 @@ export type Config = {
    * @default 2
    */
   repeatRequestStrategy?: boolean | RepeatRequestStrategyCode;
-
   /**
    * code message
    */
@@ -94,6 +93,23 @@ export type Config = {
    * @default false
    */
   compress?: boolean;
+  /**
+   * 文件分片大小（字节）
+   * @warn 文件上传使用
+   * @default 1048576 (1mb)
+   */
+  chunkSize?: number;
+  /**
+   * 文件分片生成MD5线程数
+   * @warn 文件上传使用
+   * @default navigator.hardwareConcurrency - 4
+   */
+  threadCount?: number;
+  /**
+   * 需要上传的文件
+   * @warn 文件上传使用
+   */
+  file?: File;
   /**
    * 用于判断接口是否成功的函数
    *
@@ -136,7 +152,7 @@ export type Config = {
 /**
  * @desc 有默认值的请求属性配置
  */
-export type DefaultConfig = Omit<Config, 'url' | 'data' | 'params'>;
+export type DefaultConfig = Omit<Config, 'url' | 'data' | 'params' | 'file'>;
 /**
  * @desc url必传的配置
  */
@@ -168,6 +184,8 @@ type ExtendConfig = {
   ) => Omit<ExtendConfig, 'create'> & (<T = any>(config?: UrlRequiredConfig) => Promise<T>);
   cancelAllRequesting: StriveMoluAxios['cancelAllRequesting'];
   request: StriveMoluAxios['request'];
+  uploadFile: StriveMoluAxios['uploadFile'];
+  pauseUpload: StriveMoluAxios['pauseUpload'];
   get: StriveMoluAxios['get'];
   post: StriveMoluAxios['post'];
   setCongfig: StriveMoluAxios['setCongfig'];

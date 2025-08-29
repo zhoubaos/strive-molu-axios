@@ -1,4 +1,4 @@
-import smAxios, { request } from '../http';
+import smAxios, { request } from './http';
 
 // 重复请求
 export const getServer = (data: any) => {

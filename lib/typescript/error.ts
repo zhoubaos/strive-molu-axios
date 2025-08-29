@@ -7,7 +7,7 @@ import { httpCodes } from '../defaults/error.ts';
 export enum ErrorNameEnum {
   AxiosReq = 'AxiosReqError', //axios请求相关错误
   AxiosRes = 'AxiosResError', //axios响应相关错误
-  SmAxios = 'SmAxiosError' //该项目的错误
+  SmAxios = 'SmAxiosError' //自定义错误
 }
 
 export enum CustomFlagEnum {
@@ -19,7 +19,9 @@ export enum CustomFlagEnum {
   AxiosReqError = 'AxiosReqError', // Axios请求报错
   AxiosRespError = 'AxiosRespError', // Axios响应报错
   RepeatReq = 'RepeatReq', // 重复请求
-  ERR_CANCELED = 'ERR_CANCELED' // 手动取消请求
+  ERR_CANCELED = 'ERR_CANCELED', // 手动取消请求
+  NO_FILE = 'NO_FILE', // 没有文件
+  FILE_CHUNK_ERROR = 'FILE_CHUNK_ERROR' // 文件分片错误
 }
 
 export type FlagKeys = (typeof httpCodes)[number] | CustomFlagEnum;
