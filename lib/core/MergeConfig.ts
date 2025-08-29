@@ -31,19 +31,26 @@ export function mergeConfig<T extends Config>(source: T, target: Partial<Config>
 /**
  * 扩展config
  * @param config
+ * @param isUpload 是否为上传文件
  * @returns
  */
-export function extendMergeConfig(config: Config): MergeRequestConfig {
+export function extendMergeConfig(config: Config, isUpload = false): MergeRequestConfig {
   // 设置唯一key
   Reflect.set(config, 'Axioskey', RequestPool.getConfigKey(config));
   Reflect.set(config, 'UniqueKey', randomString());
 
-  // 搜索参数
-  const search = new URLSearchParams(config.params).toString();
-  Reflect.set(config, 'completeUrl', config.url + (search ? '?' + new URLSearchParams(config.params).toString() : ''));
+  if (!isUpload) {
+    // 搜索参数
+    const search = new URLSearchParams(config.params).toString();
+    Reflect.set(
+      config,
+      'completeUrl',
+      config.url + (search ? '?' + new URLSearchParams(config.params).toString() : '')
+    );
 
-  // 归一化RepeatRequestStrategy的值
-  Reflect.set(config, 'RepeatRequestStrategy', getRepeatReqStrategy(config.repeatRequestStrategy));
+    // 归一化RepeatRequestStrategy的值
+    Reflect.set(config, 'RepeatRequestStrategy', getRepeatReqStrategy(config.repeatRequestStrategy));
+  }
   function getRepeatReqStrategy(repeatRequestStrategy: Config['repeatRequestStrategy']) {
     let s = 0;
     if (repeatRequestStrategy === false) {

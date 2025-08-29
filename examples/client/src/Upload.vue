@@ -17,12 +17,12 @@ const handleFileChange = (e: any) => {
   ufile.value = e.target.files[0];
 };
 const handleUpload = async () => {
-  // console.log(ufile.value);
-  for (let i = 0; i < 100; i++) {
-    localforage.setItem('demo' + i, ufile.value).then((res) => {
-      console.log(res);
-    });
-  }
+  console.log(ufile.value);
+  // for (let i = 0; i < 100; i++) {
+  //   localforage.setItem('demo' + i, ufile.value).then((res) => {
+  //     console.log(res);
+  //   });
+  // }
 };
 
 const handleRead = async () => {

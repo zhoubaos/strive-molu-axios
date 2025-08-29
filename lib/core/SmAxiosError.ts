@@ -4,7 +4,7 @@ import { Typings } from '../utils/index.ts';
 export { ErrorNameEnum } from '../typescript/error.ts';
 
 /**
- * @desc 请求库错误处理
+ * @desc 错误处理
  */
 export class SmAxiosError<Config = any> extends Error {
   /**

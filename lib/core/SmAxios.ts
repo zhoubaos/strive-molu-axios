@@ -1,13 +1,15 @@
 import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
-import type {
+import {
   Config,
   DefaultConfig,
   UrlRequiredConfig,
   OmitUrlMthodConfig,
   AxiosFlagError,
   MergeRequestConfig,
-  AxiosFlagResponse
-} from '../typescript/config.ts';
+  AxiosFlagResponse,
+  FlagKeys,
+  CustomFlagEnum
+} from '../typescript';
 import { codeMessageMap } from '../defaults/error.ts';
 import { getSmError, ErrorNameEnum, SmAxiosError } from './SmAxiosError.ts';
 import { deepClone } from '../utils/index.ts';
@@ -16,7 +18,6 @@ import { RequestPool } from './RequestPool.ts';
 import { DebouncePool } from './DebouncePool.ts';
 import { AbortControllerPool } from './AbortControllerPool.ts';
 import EventEmitter from './EventEmitter.ts';
-import { FlagKeys, CustomFlagEnum } from '../typescript/error.ts';
 
 /**
  * @desc 基于axios的请求库
@@ -54,10 +55,11 @@ class StriveMoluAxios {
   }
 
   /**
-   * @desc 请求方法
+   * @desc api请求
    * @param config
    */
   async request<T = any>(config: UrlRequiredConfig): Promise<T> {
+    // 合并参数
     const _mConfig = extendMergeConfig(mergeConfig(this._default, config));
     const repeatRequestMap = [];
 
@@ -116,6 +118,21 @@ class StriveMoluAxios {
     return this._request(_mConfig);
   }
 
+  /**
+   * @desc 上传文件
+   * @param config
+   */
+  async uploadFile<T = any>(config: UrlRequiredConfig) {
+    // 合并参数
+    const _mConfig = extendMergeConfig(mergeConfig(this._default, config), true);
+    console.log(_mConfig);
+  }
+
+  /**
+   * api 请求
+   * @param config
+   * @returns
+   */
   private _request(config: MergeRequestConfig): any {
     config.retryTimes--;
 
@@ -166,6 +183,10 @@ class StriveMoluAxios {
       });
   }
 
+  /**
+   * 暂停上传
+   */
+  pauseUpload() {}
   /**
    * @desc 处理axios响应报错
    * @param error

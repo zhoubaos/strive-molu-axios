@@ -132,6 +132,7 @@ export type Config = {
    */
   axiosResponseInterceptors?: Array<Parameters<Axios['interceptors']['response']['use']>>;
 };
+
 /**
  * @desc 有默认值的请求属性配置
  */
@@ -152,13 +153,6 @@ export type MergeRequestConfig = Required<Config> & {
  * @desc 排除url和method属性的配置
  */
 export type OmitUrlMthodConfig = Omit<Config, 'url' | 'method'>;
-
-export type AxiosFlagResponse = AxiosResponse & { flag?: FlagKeys };
-
-/**
- * @desc axios响应错误
- */
-export type AxiosFlagError = AxiosError & { flag: FlagKeys };
 
 /**
  * @desc 创建smAxios实例函数

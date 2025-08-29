@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { httpCodes } from '../defaults/error.ts';
 
 /**
@@ -31,3 +32,8 @@ export type ErrorConfig<T = any> = {
    */
   flag: FlagKeys;
 } & Partial<T>;
+
+/**
+ * @desc axios响应错误
+ */
+export type AxiosFlagError = AxiosError & { flag: FlagKeys };
