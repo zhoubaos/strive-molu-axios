@@ -94,15 +94,35 @@ export type Config = {
    */
   compress?: boolean;
   /**
+   * 自定义axios请求配置
+   *
+   * 注意：如果该配置的属性和Options冲突，会优先使用Option的属性值
+   */
+  axiosReqConfig?: AxiosRequestConfig;
+  /**
+   * 请求拦截器
+   */
+  axiosRequestInterceptors?: Array<Parameters<Axios['interceptors']['request']['use']>>;
+  /**
+   * 响应拦截器
+   */
+  axiosResponseInterceptors?: Array<Parameters<Axios['interceptors']['response']['use']>>;
+  /**
+   * 是否使用分片上传
+   * @warn 文件上传使用
+   * @default false
+   */
+  chunked?: boolean;
+  /**
    * 文件分片大小（字节）
    * @warn 文件上传使用
    * @default 1048576 (1mb)
    */
   chunkSize?: number;
   /**
-   * 文件分片生成MD5线程数
+   * 文件分片处理MD5线程数
    * @warn 文件上传使用
-   * @default navigator.hardwareConcurrency - 4
+   * @default cpu核心（navigator.hardwareConcurrency）- 2
    */
   threadCount?: number;
   /**
@@ -134,19 +154,11 @@ export type Config = {
    */
   getSourceError?: (error: any) => void;
   /**
-   * 自定义axios请求配置
-   *
-   * 注意：如果该配置的属性和Options冲突，会优先使用Option的属性值
+   * 分片上传初始化
+   * @warn 文件分片上传使用
+   * @returns {Boolen}
    */
-  axiosReqConfig?: AxiosRequestConfig;
-  /**
-   * 请求拦截器
-   */
-  axiosRequestInterceptors?: Array<Parameters<Axios['interceptors']['request']['use']>>;
-  /**
-   * 响应拦截器
-   */
-  axiosResponseInterceptors?: Array<Parameters<Axios['interceptors']['response']['use']>>;
+  uploadInit?: () => Promise<boolean>;
 };
 
 /**

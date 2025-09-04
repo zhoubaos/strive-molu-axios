@@ -6,15 +6,19 @@ export type AxiosFlagResponse = AxiosResponse & { flag?: FlagKeys };
 // 文件chunk
 export type Chunk = {
   /**
-   * chunk blob
+   * chunk内容
    */
   chunk: Blob;
+  /**
+   * chunk大小
+   */
+  size: number;
   /**
    * chunk md5
    */
   md5: string;
   /**
-   * file中开始索引
+   * file开始索引
    */
   start: number;
   /**
@@ -25,8 +29,4 @@ export type Chunk = {
    * chunk索引
    */
   index: number;
-  /**
-   * chunk数量
-   */
-  total: number;
 };

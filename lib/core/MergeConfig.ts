@@ -31,7 +31,7 @@ export function mergeConfig<T extends Config>(source: T, target: Partial<Config>
 /**
  * 扩展config
  * @param config
- * @param isUpload 是否为上传文件
+ * @param isUpload 是否为上传文件配置
  * @returns
  */
 export function extendMergeConfig(config: Config, isUpload = false): MergeRequestConfig {

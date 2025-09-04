@@ -5,7 +5,6 @@ export async function createChunk(file: File, index: number, chunkSize: number, 
   const end = Math.min(start + chunkSize, file.size);
 
   const blob = file.slice(start, end);
-
   const arrayBuffer = await blob.arrayBuffer();
 
   md5.init();
@@ -13,6 +12,7 @@ export async function createChunk(file: File, index: number, chunkSize: number, 
 
   return {
     chunk: blob,
+    size: blob.size,
     md5: md5.digest('hex'),
     start,
     end,

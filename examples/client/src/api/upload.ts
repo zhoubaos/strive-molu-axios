@@ -4,6 +4,8 @@ export const upload = async (file: File) => {
   return uploadFile({
     url: '/upload',
     file,
-    chunkSize: 1024 * 1024 * 10
+    chunked: false,
+    threadCount: 6,
+    chunkSize: Math.ceil(file.size / 20)
   });
 };

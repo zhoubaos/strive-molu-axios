@@ -19,7 +19,8 @@ import { DebouncePool } from './DebouncePool.ts';
 import { AbortControllerPool } from './AbortControllerPool.ts';
 import EventEmitter from './EventEmitter.ts';
 import { cutFile } from './upload/cutFile.ts';
-import { createMD5 } from 'hash-wasm';
+import { createMD5, md5 } from 'hash-wasm';
+import { chunkDb, fileDb } from './db.ts';
 
 /**
  * @desc 基于axios的请求库
@@ -132,13 +133,27 @@ class StriveMoluAxios {
     // 合并参数
     const _mConfig = extendMergeConfig(mergeConfig(this._default, config), true);
 
-    const { file, chunkSize, threadCount } = _mConfig;
+    // await fileDb.setItem(_mConfig.file.name, _mConfig.file);
+    console.log(_mConfig.threadCount);
 
     // 获取文件所有分片信息
-    const chunks = await cutFile(file, chunkSize, threadCount).catch((error) => {
-      throw getSmError(error.message, { flag: CustomFlagEnum.FILE_CHUNK_ERROR });
+    const chunks = await cutFile(_mConfig).catch((error) => {
+      throw getSmError(error.message, { flag: CustomFlagEnum.FILE_CHUNK_ERROR, file: _mConfig.file });
     });
     console.log(chunks);
+    // for (const chunk of chunks) {
+    //   await chunkDb.setItem(chunk.md5, chunk);
+    // }
+    // let fileMd5 = '';
+    // const m = await createMD5();
+    // m.init();
+    // for (let i = 0; i < chunks.length; i++) {
+    //   m.update(chunks[i].md5);
+    // }
+
+    // fileMd5 = m.digest('hex');
+
+    // console.log('fileMd5', fileMd5);
 
     console.timeEnd('cutfile');
   }
