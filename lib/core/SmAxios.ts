@@ -2,17 +2,19 @@ import axios, { type AxiosInstance, type InternalAxiosRequestConfig } from 'axio
 import {
   Config,
   DefaultConfig,
-  UrlRequiredConfig,
+  RequestRequiredConfig,
   OmitUrlMthodConfig,
   AxiosFlagError,
   MergeRequestConfig,
   AxiosFlagResponse,
   FlagKeys,
-  CustomFlagEnum
+  CustomFlagEnum,
+  UploadFileRequiredConfig,
+  Chunk
 } from '../typescript';
 import { codeMessageMap } from '../defaults/error.ts';
 import { getSmError, ErrorNameEnum, SmAxiosError } from './SmAxiosError.ts';
-import { deepClone } from '../utils/index.ts';
+import { deepClone, Typings } from '../utils/index.ts';
 import { extendMergeConfig, getAxiosConfig, mergeConfig } from './MergeConfig.ts';
 import { RequestPool } from './RequestPool.ts';
 import { DebouncePool } from './DebouncePool.ts';
@@ -20,8 +22,8 @@ import { AbortControllerPool } from './AbortControllerPool.ts';
 import EventEmitter from './EventEmitter.ts';
 import { cutFile } from './upload/cutFile.ts';
 import { createMD5, md5 } from 'hash-wasm';
-import { chunkDb, fileDb } from './db.ts';
-
+import { chunkDb, fileDb } from '../utils/db.ts';
+import { generateFileMd5 } from '../utils/file.ts';
 /**
  * @desc 基于axios的请求库
  */
@@ -61,7 +63,7 @@ class StriveMoluAxios {
    * @desc api请求
    * @param config
    */
-  async request<T = any>(config: UrlRequiredConfig): Promise<T> {
+  async request<T = any>(config: RequestRequiredConfig): Promise<T> {
     // 合并参数
     const _mConfig = extendMergeConfig(mergeConfig(this._default, config));
     const repeatRequestMap = [];
@@ -125,37 +127,65 @@ class StriveMoluAxios {
    * @desc 上传文件
    * @param config
    */
-  async uploadFile<T = any>(config: UrlRequiredConfig) {
+  async uploadFile<T = any>(config: UploadFileRequiredConfig) {
     if (!config.file) {
-      throw getSmError('请传入文件', { flag: CustomFlagEnum.NO_FILE });
+      throw getSmError('请传入文件', { flag: CustomFlagEnum.NOT_FILE });
     }
     console.time('cutfile');
     // 合并参数
     const _mConfig = extendMergeConfig(mergeConfig(this._default, config), true);
 
+    // 缓存文件信息
     // await fileDb.setItem(_mConfig.file.name, _mConfig.file);
-    console.log(_mConfig.threadCount);
 
     // 获取文件所有分片信息
-    const chunks = await cutFile(_mConfig).catch((error) => {
-      throw getSmError(error.message, { flag: CustomFlagEnum.FILE_CHUNK_ERROR, file: _mConfig.file });
-    });
+    const chunks = await cutFile(_mConfig);
     console.log(chunks);
-    // for (const chunk of chunks) {
-    //   await chunkDb.setItem(chunk.md5, chunk);
-    // }
-    // let fileMd5 = '';
-    // const m = await createMD5();
-    // m.init();
-    // for (let i = 0; i < chunks.length; i++) {
-    //   m.update(chunks[i].md5);
-    // }
 
-    // fileMd5 = m.digest('hex');
-
-    // console.log('fileMd5', fileMd5);
-
+    // 上传文件md5值
+    let fileMd5 = chunks[0].md5;
+    if (_mConfig.chunked) {
+      fileMd5 = await generateFileMd5(chunks);
+    }
+    console.log('fileMd5', fileMd5);
     console.timeEnd('cutfile');
+    // 如果分片，执行分片上传初始化方法
+    if (_mConfig.chunked) {
+      if (!Typings.isAsyncFunction(_mConfig.uploadInit)) {
+        throw getSmError('uploadInit方法错误', { flag: CustomFlagEnum.UPLOAD_INIT_ERROR });
+      }
+
+      try {
+        const res = await _mConfig.uploadInit({
+          file: _mConfig.file,
+          fileMd5,
+          chunkSize: _mConfig.chunkSize,
+          chunkCount: chunks.length,
+          chunks
+        });
+        return this._handleUpload({ chunks, fileMd5, config: _mConfig }, res);
+      } catch (error: any) {
+        throw getSmError(Typings.isString(error) ? error : error.message, { flag: CustomFlagEnum.UPLOAD_INIT_ERROR });
+      }
+    } else {
+      return this._handleUpload({ chunks, fileMd5, config: _mConfig });
+    }
+  }
+
+  /**
+   * 处理文件上传
+   * @param opt
+   * @param initRes uploadInit接口返回数据
+   */
+  private _handleUpload(opt: { chunks: Chunk[]; fileMd5: string; config: MergeRequestConfig }, initRes?: any) {
+    const { chunks, fileMd5, config } = opt;
+
+    if (!Typings.isFunction(config.setUploadData)) {
+      throw getSmError('setUploadData方法错误', { flag: CustomFlagEnum.UPLOAD_DATA_ERROR });
+    }
+    // 获取文件上传接口data传参
+    const data = config.setUploadData(chunks[0], fileMd5, initRes);
+    console.log('data', data);
   }
 
   /**
@@ -163,7 +193,7 @@ class StriveMoluAxios {
    * @param config
    * @returns
    */
-  private _request(config: MergeRequestConfig): any {
+  private _request(config: MergeRequestConfig): Promise<any> {
     config.retryTimes--;
 
     const contr = new AbortController();

@@ -7,6 +7,8 @@ const { isArray } = Array;
 const isObject = (thing: any) => thing !== null && typeof thing === 'object';
 const isFunction = (val: any) => typeof val === 'function';
 
+const isAsyncFunction = (val: any) => isFunction(val) && val.constructor.name === 'AsyncFunction';
+
 export const Typings = {
   isUndefined,
   isString,
@@ -14,5 +16,6 @@ export const Typings = {
   isBoolean,
   isArray,
   isObject,
-  isFunction
+  isFunction,
+  isAsyncFunction
 };

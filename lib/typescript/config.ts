@@ -2,6 +2,7 @@ import type { AxiosRequestConfig, Method, Axios } from 'axios';
 import type { SetRequiredKey } from './utils.ts';
 import StriveMoluAxios from '../core/SmAxios.ts';
 import { CodeMessageMap } from './error.ts';
+import { Chunk, FileInitConfig } from './common.ts';
 export type { AxiosRequestConfig };
 
 // 重复请求策略Code
@@ -158,17 +159,32 @@ export type Config = {
    * @warn 文件分片上传使用
    * @returns {Boolen}
    */
-  uploadInit?: () => Promise<boolean>;
+  uploadInit?: (config: FileInitConfig) => Promise<any>;
+  /**
+   * 获取文件上传接口data传参
+   */
+  setUploadData?: (chunk: Chunk, fileMd5: string, initRes?: Record<string, any>) => any;
+  /**
+   * 监听上传进度
+   */
+  uploadProgress?: (progressEvent: any) => void;
 };
 
 /**
  * @desc 有默认值的请求属性配置
  */
-export type DefaultConfig = Omit<Config, 'url' | 'data' | 'params' | 'file'>;
+export type DefaultConfig = Omit<
+  Config,
+  'url' | 'data' | 'params' | 'file' | 'uploadInit' | 'setUploadData' | 'uploadProgress'
+>;
 /**
- * @desc url必传的配置
+ * @desc request 请求必传参数
  */
-export type UrlRequiredConfig = SetRequiredKey<Config, 'url'>;
+export type RequestRequiredConfig = SetRequiredKey<Config, 'url'>;
+/**
+ * @desc uploadFile 必传参数
+ */
+export type UploadFileRequiredConfig = SetRequiredKey<Config, 'url' | 'file' | 'setUploadData'>;
 
 export type MergeRequestConfig = Required<Config> & {
   RepeatRequestStrategy: RepeatRequestStrategyCode;
@@ -193,7 +209,7 @@ export type CreateInstance = (config: DefaultConfig) => SmAxios;
 type ExtendConfig = {
   create: (
     config?: DefaultConfig
-  ) => Omit<ExtendConfig, 'create'> & (<T = any>(config?: UrlRequiredConfig) => Promise<T>);
+  ) => Omit<ExtendConfig, 'create'> & (<T = any>(config?: RequestRequiredConfig) => Promise<T>);
   cancelAllRequesting: StriveMoluAxios['cancelAllRequesting'];
   request: StriveMoluAxios['request'];
   uploadFile: StriveMoluAxios['uploadFile'];
@@ -208,4 +224,4 @@ type ExtendConfig = {
 /**
  * @desc smAxios实例
  */
-export type SmAxios = ExtendConfig & (<T = any>(config?: UrlRequiredConfig) => Promise<T>);
+export type SmAxios = ExtendConfig & (<T = any>(config?: RequestRequiredConfig) => Promise<T>);

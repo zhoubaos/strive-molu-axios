@@ -20,8 +20,11 @@ export enum CustomFlagEnum {
   AxiosRespError = 'AxiosRespError', // Axios响应报错
   RepeatReq = 'RepeatReq', // 重复请求
   ERR_CANCELED = 'ERR_CANCELED', // 手动取消请求
-  NO_FILE = 'NO_FILE', // 没有文件
-  FILE_CHUNK_ERROR = 'FILE_CHUNK_ERROR' // 文件分片错误
+  NOT_FILE = 'NOT_FILE', // 没有文件
+  SPLIT_FILE_ERROR = 'FILE_CHUNK_ERROR', // 文件分片错误
+  GEN_FILE_MD5_ERROR = 'GEN_FILE_MD5_ERROR', // 生成文件md5错误
+  UPLOAD_INIT_ERROR = 'UPLOAD_INIT_ERROR', // 上传初始化错误
+  UPLOAD_DATA_ERROR = 'UPLOAD_DATA_ERROR' // 上传数据错误
 }
 
 export type FlagKeys = (typeof httpCodes)[number] | CustomFlagEnum;

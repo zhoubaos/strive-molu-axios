@@ -1,4 +1,5 @@
-import { Chunk, MergeRequestConfig } from '../../typescript';
+import { Chunk, CustomFlagEnum, MergeRequestConfig } from '../../typescript';
+import { getSmError } from '../SmAxiosError';
 
 /**
  * 处理文件分片
@@ -51,12 +52,12 @@ export async function cutFile(config: MergeRequestConfig) {
             resolve(chunksList.flat());
           }
         } else {
-          reject(data);
+          reject(getSmError(data.message, { flag: CustomFlagEnum.SPLIT_FILE_ERROR, file }));
         }
       };
       worker.onerror = (e) => {
         worker.terminate();
-        reject(new Error('文件分片失败'));
+        reject(getSmError('文件分片失败', { flag: CustomFlagEnum.SPLIT_FILE_ERROR, file }));
       };
     }
   });
