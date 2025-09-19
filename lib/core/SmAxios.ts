@@ -156,14 +156,14 @@ class StriveMoluAxios {
       }
 
       try {
-        const res = await _mConfig.uploadInit({
+        const initResp = await _mConfig.uploadInit({
           file: _mConfig.file,
           fileMd5,
           chunkSize: _mConfig.chunkSize,
           chunkCount: chunks.length,
           chunks
         });
-        return this._handleUpload({ chunks, fileMd5, config: _mConfig }, res);
+        return this._handleUpload({ chunks, fileMd5, config: _mConfig }, initResp);
       } catch (error: any) {
         throw getSmError(Typings.isString(error) ? error : error.message, { flag: CustomFlagEnum.UPLOAD_INIT_ERROR });
       }
@@ -177,14 +177,14 @@ class StriveMoluAxios {
    * @param opt
    * @param initRes uploadInit接口返回数据
    */
-  private _handleUpload(opt: { chunks: Chunk[]; fileMd5: string; config: MergeRequestConfig }, initRes?: any) {
+  private _handleUpload(opt: { chunks: Chunk[]; fileMd5: string; config: MergeRequestConfig }, initResp?: any) {
     const { chunks, fileMd5, config } = opt;
 
     if (!Typings.isFunction(config.setUploadData)) {
       throw getSmError('setUploadData方法错误', { flag: CustomFlagEnum.UPLOAD_DATA_ERROR });
     }
     // 获取文件上传接口data传参
-    const data = config.setUploadData(chunks[0], fileMd5, initRes);
+    const data = config.setUploadData(chunks[0], fileMd5, initResp);
     console.log('data', data);
   }
 

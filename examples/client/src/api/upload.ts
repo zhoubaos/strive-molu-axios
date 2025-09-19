@@ -2,7 +2,7 @@ import { uploadFile } from './http';
 
 export const upload = async (file: File) => {
   return uploadFile({
-    url: '/upload',
+    url: '/api/upload/chunks',
     file,
     chunked: true,
     threadCount: 6,
