@@ -6,6 +6,7 @@ const defConfig: Required<DefaultConfig> = {
   timeout: 10000,
   contentType: 'json',
   retryTimes: 0,
+  retryInterval: 1000,
   repeatRequestStrategy: 2,
   compress: false,
   headers: {},

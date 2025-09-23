@@ -18,6 +18,8 @@ import { RequestPool } from './RequestPool.ts';
 import { DebouncePool } from './DebouncePool.ts';
 import { AbortControllerPool } from './AbortControllerPool.ts';
 import EventEmitter from './EventEmitter.ts';
+import { resolve } from 'path';
+import { rejects } from 'assert';
 
 /**
  * @desc 基于axios的请求库
@@ -163,7 +165,11 @@ class StriveMoluAxios {
       .catch<SmAxiosError>((error: any) => {
         // 重试
         if (config.retryTimes >= 0 && !config.axiosReqConfig.signal?.aborted) {
-          return this._request(config);
+          return new Promise((resolve, rejects) => {
+            setTimeout(() => {
+              this._request(config).then(resolve).catch(rejects);
+            }, config.retryInterval);
+          });
         } else {
           const e = this._handleAxiosResError(error, config);
           if (config.RepeatRequestStrategy === 2) {

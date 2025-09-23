@@ -1,17 +1,18 @@
 import { Router } from 'express';
 import * as userController from '../controllers/uploadController';
-
+let a = 0;
 const routes: Router = Router();
 routes.use('/', (req, res) => {
+  a++;
   const result = [
     {
       name: '张三',
       age: 18
     }
   ];
-  setTimeout(() => {
+  if (a == 2) {
     res.json(result);
-  }, 2000);
+  }
 });
 
 export default routes;

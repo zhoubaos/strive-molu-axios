@@ -1,7 +1,7 @@
-import type { AxiosRequestConfig, AxiosError, Method, Axios, AxiosResponse } from 'axios';
+import type { AxiosRequestConfig, Method, Axios } from 'axios';
 import type { SetRequiredKey } from './utils.ts';
 import StriveMoluAxios from '../core/SmAxios.ts';
-import { CodeMessageMap, FlagKeys } from './error.ts';
+import { CodeMessageMap } from './error.ts';
 export type { AxiosRequestConfig };
 
 // 重复请求策略Code
@@ -72,6 +72,12 @@ export type Config = {
    * @default 0
    */
   retryTimes?: number;
+  /**
+   * 重试间隔
+   *
+   * @default 1000ms
+   */
+  retryInterval?: number;
   /**
    * 对于重复请求的处理策略
    *
