@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import * as userController from '../controllers/uploadController';
+import * as uploadController from '../controllers/uploadController';
 
 const routes: Router = Router();
-routes.get('/', userController.getTest);
-routes.post('/create', userController.createUpload);
+routes.post('/create', uploadController.createUpload);
+routes.get('/chunk', uploadController.setChunk);
 
 export default routes;
