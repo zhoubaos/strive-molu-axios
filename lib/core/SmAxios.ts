@@ -21,8 +21,6 @@ import { DebouncePool } from './DebouncePool.ts';
 import { AbortControllerPool } from './AbortControllerPool.ts';
 import EventEmitter from './EventEmitter.ts';
 import { cutFile } from './upload/cutFile.ts';
-import { createMD5, md5 } from 'hash-wasm';
-import { chunkDb, fileDb } from '../utils/db.ts';
 import { generateFileMd5 } from '../utils/file.ts';
 /**
  * @desc 基于axios的请求库
