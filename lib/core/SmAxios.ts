@@ -136,14 +136,17 @@ class StriveMoluAxios {
   private _request(config: MergeRequestConfig): any {
     config.retryTimes--;
 
-    const contr = new AbortController();
-    //给每个接口添加取消接口请求的标志
-    config = mergeConfig(config, {
-      axiosReqConfig: {
-        signal: contr.signal
-      }
-    });
-    this._controllerPool.add(config.UniqueKey, contr);
+    // 如果自定义了signal，就不添加默认的signal了
+    if (!config.axiosReqConfig.signal) {
+      const contr = new AbortController();
+      //给每个接口添加取消接口请求的标志
+      config = mergeConfig(config, {
+        axiosReqConfig: {
+          signal: contr.signal
+        }
+      });
+      this._controllerPool.add(config.UniqueKey, contr);
+    }
 
     return (this._axiosInstance as AxiosInstance)
       .request(getAxiosConfig(config))

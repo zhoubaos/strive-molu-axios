@@ -5,7 +5,7 @@ export class AbortControllerPool {
     Reflect.set(this._pool, key, controller);
   }
   remove(key: string) {
-    Reflect.deleteProperty(this._pool, key);
+    if (this._pool[key]) Reflect.deleteProperty(this._pool, key);
   }
 
   abort(key: string, reason?: string) {
