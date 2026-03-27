@@ -1,7 +1,7 @@
-import type { AxiosRequestConfig, AxiosError, Method, Axios, AxiosResponse } from 'axios';
+import type { AxiosRequestConfig, Method, Axios } from 'axios';
 import type { SetRequiredKey } from './utils.ts';
 import StriveMoluAxios from '../core/SmAxios.ts';
-import { CodeMessageMap, FlagKeys } from './error.ts';
+import { CodeMessageMap } from './error.ts';
 export type { AxiosRequestConfig };
 
 // 重复请求策略Code
