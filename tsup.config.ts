@@ -2,6 +2,7 @@ import { defineConfig } from 'tsup';
 /**
  * 由于tsup使用rollup-plugin-dts去生成dts文件，且该插件和配置的tsconfig.json中文件composite属性为true时会有冲突，从而导致报错。
  * 详情请参考：https://github.com/egoist/tsup/issues/571
+ * 清除console方法，避免在生产环境打印日志
  */
 export default defineConfig((options) => {
   return {
@@ -11,8 +12,12 @@ export default defineConfig((options) => {
     shims: true,
     clean: true, //每次都清除dist目录
     dts: true, // 生成 .d.ts 文件
-    // minify: !options.watch,
     format: ['cjs', 'esm'], // 输出格式
-    target: 'node16' // 目标环境
+    target: 'node16', // 目标环境
+    esbuildOptions(opts) {
+      if (!options.watch) {
+        opts.drop = ['console', 'debugger'];
+      }
+    }
   };
 });

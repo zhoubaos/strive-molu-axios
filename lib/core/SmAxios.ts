@@ -125,7 +125,6 @@ class StriveMoluAxios {
   async uploadFile<T = any>(config: UrlRequiredConfig) {
     // 合并参数
     const _mConfig = extendMergeConfig(mergeConfig(this._default, config), true);
-    console.log(_mConfig);
   }
 
   /**
@@ -195,8 +194,6 @@ class StriveMoluAxios {
    * @param error
    */
   private _handleAxiosResError(error: AxiosFlagError, config: MergeRequestConfig) {
-    console.log(error, config);
-
     config.getSourceError(deepClone(error));
     // 桥架错误
     if (error.flag === CustomFlagEnum.BridgeError) {
@@ -216,7 +213,7 @@ class StriveMoluAxios {
       error.flag = ((error.response?.status || error.code) as FlagKeys) ?? CustomFlagEnum.AxiosRespError;
       const cancelReason = (config.axiosReqConfig.signal as AbortSignal).reason;
 
-      const msg = cancelReason ?? this._getCodeMessage(error.flag, config);
+      const msg = cancelReason || this._getCodeMessage(error.flag, config);
 
       // @ts-ignore
       return getSmError(ErrorNameEnum.AxiosRes, msg, error);
