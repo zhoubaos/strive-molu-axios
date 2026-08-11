@@ -31,10 +31,7 @@ export function createOverload() {
  * @param length
  * @returns
  */
-export function currying<T extends (...args: any[]) => any>(
-  fn: T,
-  length?: number
-): (...args: Partial<Parameters<T>>) => any {
+export function currying<T extends (...args: any[]) => any>(fn: T, length?: number): (...args: Parameters<T>) => any {
   length = length || fn.length;
   return function (...args) {
     // @ts-ignore

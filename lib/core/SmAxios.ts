@@ -119,15 +119,6 @@ class StriveMoluAxios {
   }
 
   /**
-   * @desc 上传文件
-   * @param config
-   */
-  async uploadFile<T = any>(config: UrlRequiredConfig) {
-    // 合并参数
-    const _mConfig = extendMergeConfig(mergeConfig(this._default, config), true);
-  }
-
-  /**
    * api 请求
    * @param config
    * @returns
@@ -185,10 +176,6 @@ class StriveMoluAxios {
       });
   }
 
-  /**
-   * 暂停上传
-   */
-  pauseUpload() {}
   /**
    * @desc 处理axios响应报错
    * @param error

@@ -39,9 +39,7 @@ export class RequestPool {
    */
   remove(c: AxiosRequestConfig | string) {
     const key = Typings.isString(c) ? c : RequestPool.getConfigKey(c);
-    setTimeout(() => {
-      this._pool.delete(key);
-    }, this.delayTime);
+    this._pool.delete(key);
   }
 
   /**

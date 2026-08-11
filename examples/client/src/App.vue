@@ -7,17 +7,13 @@
       <el-form-item label="年龄" prop="age">
         <el-input-number v-model="form.age"></el-input-number>
       </el-form-item>
-      <el-form-item label="文件" prop="address">
-        <input type="file" id="file" name="file" multiple webkitdirectory />
-      </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onClick_submit">get提交</el-button>
         <el-button type="primary" @click="onClick_submit1">get提交V2</el-button>
         <el-button @click="onClick_cancel">取消请求</el-button>
+        <el-button @click="handleRepeatRequest">验证重复请求功能</el-button>
       </el-form-item>
     </el-form>
-    <el-divider />
-    <upload />
   </div>
 </template>
 
@@ -26,8 +22,6 @@ import { getServer, getServerV2 } from './api/get';
 import { reactive, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { request } from './http';
-import Upload from '@/Upload.vue';
-
 const form = reactive({
   name: '',
   age: 0
@@ -70,6 +64,16 @@ const getApiV2 = async () => {
     console.log('==v2==', res);
   } catch (error: any) {
     ElMessage.error(error.message);
+  }
+};
+
+const handleRepeatRequest = async () => {
+  for (let i = 0; i < 3; i++) {
+    getServer({
+      list: { id: 1, name: 'test', content: '重复的长文本内容...' }
+    }).then((res) => {
+      console.log(res);
+    });
   }
 };
 </script>

@@ -11,7 +11,7 @@ routes.use('/', (req, res) => {
   ];
   setTimeout(() => {
     res.json(result);
-  }, 2000);
+  }, 200);
 });
 
 export default routes;

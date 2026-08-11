@@ -29,6 +29,22 @@ export function mergeConfig<T extends Config>(source: T, target: Partial<Config>
 }
 
 /**
+ * 获取重复请求策略
+ * @param repeatRequestStrategy 重复请求策略
+ */
+export function getRepeatReqStrategy(repeatRequestStrategy: Config['repeatRequestStrategy']) {
+  let s = 0;
+  if (repeatRequestStrategy === false) {
+    s = 0;
+  } else if (repeatRequestStrategy === true || repeatRequestStrategy === 1) {
+    s = 1;
+  } else {
+    s = repeatRequestStrategy as number;
+  }
+  return s as RepeatRequestStrategyCode;
+}
+
+/**
  * 扩展config
  * @param config
  * @param isUpload 是否为上传文件
@@ -50,17 +66,6 @@ export function extendMergeConfig(config: Config, isUpload = false): MergeReques
 
     // 归一化RepeatRequestStrategy的值
     Reflect.set(config, 'RepeatRequestStrategy', getRepeatReqStrategy(config.repeatRequestStrategy));
-  }
-  function getRepeatReqStrategy(repeatRequestStrategy: Config['repeatRequestStrategy']) {
-    let s = 0;
-    if (repeatRequestStrategy === false) {
-      s = 0;
-    } else if (repeatRequestStrategy === true || repeatRequestStrategy === 1) {
-      s = 1;
-    } else {
-      s = repeatRequestStrategy as number;
-    }
-    return s as RepeatRequestStrategyCode;
   }
 
   return config as MergeRequestConfig;
