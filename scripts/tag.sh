@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 手动输入版本号 → 更新 package.json → 提交并推送 → 创建并推送 git tag
+# 手动输入版本号 → 更新 package.json → 提交并推送 → 创建并推送 git tag → 触发自动发布npm包
 
 set -euo pipefail
 
