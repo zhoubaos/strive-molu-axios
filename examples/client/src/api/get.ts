@@ -8,6 +8,7 @@ export const getServer = (data: any) => {
     data,
     timeout: 3000,
     method: 'post',
+    retryTimes: 2,
     codeMessageMap: {
       ECONNABORTED: '请求超时'
     }

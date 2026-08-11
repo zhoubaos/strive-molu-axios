@@ -73,6 +73,12 @@ export type Config = {
    */
   retryTimes?: number;
   /**
+   * 重试间隔
+   *
+   * @default 1000ms
+   */
+  retryInterval?: number;
+  /**
    * 对于重复请求的处理策略
    *
    * * false 允许重复的请求

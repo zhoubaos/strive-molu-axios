@@ -156,7 +156,11 @@ class StriveMoluAxios {
       .catch<SmAxiosError>((error: any) => {
         // 重试
         if (config.retryTimes >= 0 && !config.axiosReqConfig.signal?.aborted) {
-          return this._request(config);
+          return new Promise((resolve, rejects) => {
+            setTimeout(() => {
+              this._request(config).then(resolve).catch(rejects);
+            }, config.retryInterval);
+          });
         } else {
           const e = this._handleAxiosResError(error, config);
           if (config.RepeatRequestStrategy === 2) {
